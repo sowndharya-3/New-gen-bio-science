@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>NewGen Admin</title>
+<style>
+  :root { --brand:#FA731E; --brand-d:#e06518; --navy:#0f2a4a; --ink:#1f2937; --mute:#6b7280; --line:#e5e7eb; --bg:#f3f4f6; --card:#fff; --ok:#15803d; --bad:#dc2626; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); background:var(--bg); }
+  [hidden] { display:none !important; }
+  button { font:inherit; cursor:pointer; }
+  input,select,textarea { font:inherit; width:100%; padding:9px 11px; border:1.5px solid var(--line); border-radius:8px; background:#fff; color:var(--ink); }
+  input:focus,select:focus,textarea:focus { outline:none; border-color:var(--brand); }
+  label { display:block; font-weight:600; font-size:13px; margin:0 0 4px; }
+  .btn { background:var(--brand); color:#fff; border:0; border-radius:8px; padding:9px 16px; font-weight:600; }
+  .btn:hover { background:var(--brand-d); }
+  .btn:disabled { opacity:.6; cursor:default; }
+  .btn.ghost { background:#fff; color:var(--ink); border:1.5px solid var(--line); }
+  .btn.ghost:hover { border-color:var(--brand); color:var(--brand); }
+  .btn.danger { background:#fff; color:var(--bad); border:1.5px solid #fecaca; }
+  .btn.danger:hover { background:var(--bad); border-color:var(--bad); color:#fff; }
+  .btn.sm { padding:5px 10px; font-size:13px; }
+  .btn.xs { padding:3px 8px; font-size:12px; }
+  .err { color:var(--bad); margin:10px 0 0; min-height:1.2em; }
+  .login { max-width:360px; margin:12vh auto; background:var(--card); padding:28px; border-radius:14px; box-shadow:0 4px 24px rgba(0,0,0,.08); }
+  .login h1 { margin:0 0 18px; font-size:22px; }
+  .login .row { margin-bottom:14px; }
+  header.top { background:#fff; border-bottom:1px solid var(--line); padding:10px 16px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+  header.top h1 { font-size:18px; margin:0; margin-right:auto; }
+  header.top h1 span { color:var(--brand); }
+  nav.tabs { display:flex; gap:6px; }
+  nav.tabs button { background:none; border:0; padding:8px 14px; border-radius:8px; font-weight:600; color:var(--mute); }
+  nav.tabs button.on { background:#fff3ea; color:var(--brand); }
+  main { max-width:1280px; margin:0 auto; padding:18px 16px 60px; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin-bottom:16px; }
+  .stat { background:var(--card); border-radius:12px; padding:12px 14px; border:1px solid var(--line); }
+  .stat b { display:block; font-size:24px; }
+  .stat span { color:var(--mute); font-size:12px; }
+  .bar { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; align-items:center; }
+  .bar input { flex:1 1 220px; max-width:340px; }
+  .bar select { width:auto; }
+  .bar .grow { margin-left:auto; }
+  .bar .grp { margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+  .tablewrap { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; min-width:760px; }
+  th,td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--mute); background:#fafafa; white-space:nowrap; }
+  tr:last-child td { border-bottom:0; }
+  td img.thumb { width:48px; height:48px; object-fit:contain; background:#fff; border:1px solid var(--line); border-radius:8px; display:block; }
+  .badge { display:inline-block; padding:2px 9px; border-radius:99px; font-size:12px; font-weight:600; background:#e5e7eb; white-space:nowrap; }
+  .b-received { background:#dbeafe; color:#1d4ed8; } .b-processing { background:#fef3c7; color:#b45309; }
+  .b-shipped { background:#ede9fe; color:#6d28d9; } .b-delivered { background:#dcfce7; color:var(--ok); }
+  .b-cancelled { background:#fee2e2; color:var(--bad); } .b-pending { background:#fef3c7; color:#b45309; }
+  .b-paid { background:#dcfce7; color:var(--ok); } .b-failed { background:#fee2e2; color:var(--bad); } .b-refunded { background:#e5e7eb; }
+  .b-active { background:#dcfce7; color:var(--ok); } .b-inactive { background:#e5e7eb; color:var(--mute); }
+  .muted { color:var(--mute); } .nowrap { white-space:nowrap; }
+  .items div { white-space:nowrap; }
+  .actions { white-space:nowrap; display:flex; gap:6px; flex-wrap:wrap; }
+  .pager { display:flex; gap:10px; align-items:center; justify-content:flex-end; margin-top:10px; color:var(--mute); }
+  dialog { border:0; border-radius:14px; padding:0; width:min(700px,94vw); max-height:92vh; box-shadow:0 10px 40px rgba(0,0,0,.25); }
+  dialog.wide { width:min(880px,96vw); }
+  dialog::backdrop { background:rgba(0,0,0,.45); }
+  .dlg-h { display:flex; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line); position:sticky; top:0; background:#fff; z-index:1; }
+  .dlg-h h2 { font-size:17px; margin:0; margin-right:auto; }
+  .dlg-b { padding:16px 18px 20px; overflow:auto; max-height:calc(92vh - 60px); }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .full { grid-column:1/-1; }
+  .kv { display:grid; grid-template-columns:140px 1fr; gap:6px 12px; margin:0 0 14px; }
+  .kv dt { color:var(--mute); } .kv dd { margin:0; word-break:break-word; }
+  .imgbox { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  .imgbox img { width:110px; height:110px; object-fit:contain; background:#fff; border:1px solid var(--line); border-radius:10px; }
+  .vrow { display:grid; grid-template-columns:1fr 120px auto; gap:8px; margin-bottom:8px; }
+  .hist { margin:8px 0 0; padding-left:18px; color:var(--mute); }
+  .toast { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:#111827; color:#fff; padding:10px 16px; border-radius:10px; z-index:50; max-width:90vw; }
+  .toast.bad { background:var(--bad); }
+  .hint { color:var(--mute); font-size:12px; margin:4px 0 0; }
+  .panel { border:1px solid var(--line); border-radius:12px; padding:14px; margin-top:16px; background:#fcfcfd; }
+  .panel h3 { margin:0 0 10px; font-size:14px; }
+  .notice { border-radius:10px; padding:10px 12px; margin:12px 0 0; background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; }
+  .notice.bad { background:#fef2f2; border-color:#fecaca; color:#991b1b; }
+  .row-actions { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; }
+  .sec-card { border:1.5px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px; background:#fff; }
+  .sec-head { display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+  .sec-head .tag { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--brand); min-width:110px; }
+  .sec-head input { flex:1 1 180px; width:auto; }
+  .brow { display:grid; grid-template-columns:1fr auto; gap:6px; margin-bottom:6px; align-items:start; }
+  .brow .ctl { display:flex; gap:4px; }
+  .cat-row { display:grid; grid-template-columns:1fr 70px auto; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid var(--line); }
+  .cat-row:last-child { border-bottom:0; }
+  .cat-move { grid-column:1/-1; background:#fff7ed; border:1px solid #fed7aa; border-radius:10px; padding:10px; display:grid; gap:8px; }
+  @media (max-width:560px) {
+    .grid2 { grid-template-columns:1fr; } .kv { grid-template-columns:1fr; }
+    .vrow { grid-template-columns:1fr 90px auto; } .cat-row { grid-template-columns:1fr auto; } .cat-row .muted { display:none; }
+    .bar .grp { margin-left:0; } nav.tabs button { padding:8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<section id="loginView" class="login" hidden>
+  <h1>NewGen <span style="color:var(--brand)">Admin</span></h1>
+  <form id="loginForm" autocomplete="on">
+    <div class="row"><label for="lUser">Username</label><input id="lUser" name="username" autocomplete="username" required /></div>
+    <div class="row"><label for="lPass">Password</label><input id="lPass" name="password" type="password" autocomplete="current-password" required /></div>
+    <button class="btn" id="lBtn" type="submit" style="width:100%">Sign in</button>
+    <p class="err" id="lErr" role="alert"></p>
+  </form>
+</section>
+
+<div id="appView" hidden>
+  <header class="top">
+    <h1>NewGen <span>Admin</span></h1>
+    <nav class="tabs"><button data-tab="orders" class="on">Orders</button><button data-tab="products">Products</button></nav>
+    <span class="muted" id="who"></span>
+    <button class="btn ghost sm" id="logoutBtn">Sign out</button>
+  </header>
+
+  <main>
+    <section id="tabOrders">
+      <div class="stats" id="stats"></div>
+      <div class="bar">
+        <input id="oq" type="search" placeholder="Search Order ID, name or mobile" />
+        <select id="ost" aria-label="Order Status"><option value="">All order statuses</option></select>
+        <select id="opay" aria-label="Payment Status"><option value="">All payment statuses</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="failed">Failed</option><option value="refunded">Refunded</option></select>
+        <select id="ometh" aria-label="Payment Method"><option value="">All payment methods</option><option value="cod">Cash on Delivery</option><option value="razorpay">Online (Razorpay)</option></select>
+        <button class="btn ghost sm grow" id="oRefresh">Refresh</button>
+      </div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Order ID</th><th>Date</th><th>Customer</th><th>Mobile</th><th>Address</th><th>Items</th><th>Total</th><th>Payment Method</th><th>Payment Status</th><th>Order Status</th><th></th></tr></thead>
+        <tbody id="oBody"></tbody>
+      </table></div>
+      <div class="pager"><span id="oCount"></span><button class="btn ghost sm" id="oPrev">Previous</button><button class="btn ghost sm" id="oNext">Next</button></div>
+    </section>
+
+    <section id="tabProducts" hidden>
+      <div class="bar"><b>Shop products</b><div class="grp"><button class="btn ghost" id="catManage">Manage categories</button><button class="btn" id="pAdd">Add product</button></div></div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Pack sizes</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="pBody"></tbody>
+      </table></div>
+    </section>
+  </main>
+</div>
+
+<dialog id="orderDlg" class="wide">
+  <div class="dlg-h"><h2 id="odTitle">Order</h2><button class="btn ghost sm" data-close>Close</button></div>
+  <div class="dlg-b" id="odBody"></div>
+</dialog>
+
+<dialog id="catDlg">
+  <div class="dlg-h"><h2>Manage categories</h2><button class="btn ghost sm" data-close>Close</button></div>
+  <div class="dlg-b">
+    <form id="catAddForm" style="display:flex;gap:8px;margin-bottom:6px">
+      <input id="catNew" maxlength="40" placeholder="New category name, e.g. Pet Care" aria-label="New category name" />
+      <button class="btn nowrap" type="submit">Add category</button>
+    </form>
+    <p class="err" id="catErr" role="alert"></p>
+    <div id="catList"></div>
+    <p class="hint">Renaming a category updates it everywhere. A category that still has products can only be deleted after its products are moved to another category.</p>
+  </div>
+</dialog>
+
+<dialog id="prodDlg" class="wide">
+  <div class="dlg-h"><h2 id="pdTitle">Product</h2><button class="btn ghost sm" data-close>Close</button></div>
+  <form class="dlg-b" id="pForm">
+    <div class="grid2">
+      <div><label for="pName">Product name</label><input id="pName" maxlength="80" required /></div>
+      <div><label for="pCat">Category</label><select id="pCat" required></select></div>
+      <div class="full"><label for="pSub">Product subtitle / short heading</label><input id="pSub" maxlength="120" placeholder="Shown directly under the product name, e.g. ENRICH THE INTESTINAL HEALTH" /></div>
+      <div class="full"><label for="pDescHead">Description heading</label><input id="pDescHead" maxlength="120" placeholder="Short heading shown above the description (optional)" /></div>
+      <div class="full"><label for="pDesc">Description</label><textarea id="pDesc" rows="4" maxlength="4000" placeholder="Main description paragraph shown below the heading"></textarea></div>
+      <div class="full">
+        <label>Product image</label>
+        <div class="imgbox">
+          <img id="pImg" alt="Product image preview" />
+          <div>
+            <input id="pFile" type="file" accept="image/jpeg,image/png,image/webp" />
+            <div class="muted" style="margin-top:6px">JPG, PNG or WebP, max 5 MB. Choose a file to preview it, then press Save.</div>
+            <button type="button" class="btn ghost sm" id="pImgClear" style="margin-top:8px">Remove image</button>
+          </div>
+        </div>
+      </div>
+      <div class="full">
+        <label>Pack sizes &amp; prices (₹)</label>
+        <div id="pSizes"></div>
+        <button type="button" class="btn ghost sm" id="pAddSize">+ Add pack size</button>
+      </div>
+      <div class="full">
+        <label>Product detail sections</label>
+        <p class="hint" style="margin:0 0 8px">Each section appears on the product page as a heading with bullet points, in the order shown here. Sections with no bullet points are not shown to customers.</p>
+        <div id="pSecs"></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="pSecAdd" style="width:auto;min-width:190px" aria-label="Section to add"></select>
+          <button type="button" class="btn ghost sm" id="pSecAddBtn">+ Add section</button>
+        </div>
+      </div>
+      <div class="full"><label style="display:flex;gap:8px;align-items:center;font-weight:600"><input id="pActive" type="checkbox" style="width:auto" /> Available in the Shop</label></div>
+    </div>
+    <p class="err" id="pErr" role="alert"></p>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button type="button" class="btn ghost" data-close>Cancel</button><button class="btn" id="pSave" type="submit">Save product</button></div>
+  </form>
+</dialog>
+
+<script>
+(function () {
+  'use strict';
+  var API = '/api/', PLACEHOLDER = '/assets/product-placeholder.svg';
+  var csrf = '', pageSize = 25, offset = 0, products = [], categories = [], sectionKeys = [], editing = null, pendingFile = null, pendingPreview = null, imageValue = null;
+  var STATUS = { received: 'Received', processing: 'Processing', shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled' };
+  var PAY = { pending: 'Pending', paid: 'Paid', failed: 'Failed', refunded: 'Refunded' };
+  var METHOD = { cod: 'Cash on Delivery', razorpay: 'Online (Razorpay)', cash: 'Cash', upi: 'UPI', bank_transfer: 'Bank transfer', cheque: 'Cheque', other: 'Other' };
+  var OFFLINE = ['cod', 'cash', 'upi', 'bank_transfer', 'cheque', 'other'], REFUND = ['razorpay', 'bank_transfer', 'upi', 'cash', 'cheque', 'other'];
+  var $ = function (id) { return document.getElementById(id); };
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function rupees(n) { return '₹' + Number(n).toLocaleString('en-IN'); }
+  function when(iso) { var d = new Date(iso); return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }); }
+  function whenDate(iso) { return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  function todayLocal() { return new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
+  function methodName(m) { return m ? (METHOD[m] || m) : 'Not recorded'; }
+  function catName(slug) { var c = categories.filter(function (x) { return x.slug === slug; })[0]; return c ? c.name : slug; }
+  function toast(msg, bad) { var t = document.createElement('div'); t.className = 'toast' + (bad ? ' bad' : ''); t.textContent = msg; document.body.appendChild(t); setTimeout(function () { t.remove(); }, 3600); }
+
+  function api(path, opts) {
+    opts = opts || {};
+    var headers = opts.headers || {};
+    if (opts.method === 'POST') headers['X-CSRF-Token'] = csrf;
+    return fetch(API + path, { method: opts.method || 'GET', headers: headers, body: opts.body, credentials: 'same-origin' })
+      .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Unexpected server response.' }; }).then(function (d) { d.httpStatus = r.status; return d; }); })
+      .then(function (d) { if (d.httpStatus === 401 && path !== 'admin-auth.php') showLogin(); return d; });
+  }
+  function post(path, obj) { return api(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) }); }
+
+  // ---- auth -----------------------------------------------------------------
+  function showLogin() { $('appView').hidden = true; $('loginView').hidden = false; csrf = ''; }
+  function showApp(user, token) { csrf = token; $('who').textContent = user; $('loginView').hidden = true; $('appView').hidden = false; loadOrders(); loadProducts(); }
+
+  $('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault(); $('lErr').textContent = ''; $('lBtn').disabled = true;
+    post('admin-auth.php', { action: 'login', username: $('lUser').value, password: $('lPass').value }).then(function (d) {
+      $('lBtn').disabled = false;
+      if (d.ok) { $('lPass').value = ''; showApp(d.user, d.csrf); } else $('lErr').textContent = d.error || 'Sign-in failed.';
+    }).catch(function () { $('lBtn').disabled = false; $('lErr').textContent = 'Network error.'; });
+  });
+  $('logoutBtn').addEventListener('click', function () { post('admin-auth.php', { action: 'logout' }).then(showLogin); });
+
+  document.querySelectorAll('nav.tabs button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('nav.tabs button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      $('tabOrders').hidden = b.dataset.tab !== 'orders'; $('tabProducts').hidden = b.dataset.tab !== 'products';
+    });
+  });
+  document.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', function () { b.closest('dialog').close(); }); });
+
+  // ---- orders -----------------------------------------------------------------
+  Object.keys(STATUS).forEach(function (k) { var o = document.createElement('option'); o.value = k; o.textContent = STATUS[k]; $('ost').appendChild(o); });
+  var qTimer;
+  $('oq').addEventListener('input', function () { clearTimeout(qTimer); qTimer = setTimeout(function () { offset = 0; loadOrders(); }, 300); });
+  ['ost', 'opay', 'ometh'].forEach(function (id) { $(id).addEventListener('change', function () { offset = 0; loadOrders(); }); });
+  $('oRefresh').addEventListener('click', loadOrders);
+  $('oPrev').addEventListener('click', function () { offset = Math.max(0, offset - pageSize); loadOrders(); });
+  $('oNext').addEventListener('click', function () { offset += pageSize; loadOrders(); });
+
+  function loadOrders() {
+    var qs = 'limit=' + pageSize + '&offset=' + offset + '&q=' + encodeURIComponent($('oq').value) + '&status=' + $('ost').value + '&payment=' + $('opay').value + '&method=' + $('ometh').value;
+    api('admin-orders.php?' + qs).then(function (d) {
+      if (!d.ok) { if (d.httpStatus !== 401) toast(d.error || 'Could not load orders.', true); return; }
+      var s = d.stats, cards = [['Total orders', s.total], ['Received', s.received], ['Processing', s.processing], ['Shipped', s.shipped], ['Delivered', s.delivered], ['Cancelled', s.cancelled], ['Payment pending', s.paymentPending]];
+      $('stats').innerHTML = cards.map(function (c) { return '<div class="stat"><b>' + c[1] + '</b><span>' + c[0] + '</span></div>'; }).join('');
+      $('oBody').innerHTML = d.orders.length ? d.orders.map(orderRow).join('') : '<tr><td colspan="11" class="muted">No orders found.</td></tr>';
+      $('oCount').textContent = d.matching ? (offset + 1) + '–' + Math.min(offset + pageSize, d.matching) + ' of ' + d.matching : '0 orders';
+      $('oPrev').disabled = offset === 0; $('oNext').disabled = offset + pageSize >= d.matching;
+      document.querySelectorAll('[data-view-order]').forEach(function (b) { b.addEventListener('click', function () { openOrder(b.dataset.viewOrder); }); });
+    });
+  }
+  function orderRow(o) {
+    var items = o.items.map(function (i) { return '<div>' + esc(i.name) + ' <span class="muted">(' + esc(i.size) + ') × ' + i.qty + '</span></div>'; }).join('');
+    return '<tr><td class="nowrap"><b>' + esc(o.orderId) + '</b></td><td class="nowrap">' + esc(when(o.createdAt)) + '</td><td>' + esc(o.customerName) + '</td><td class="nowrap">' + esc(o.mobile) + '</td>' +
+      '<td>' + esc(o.address + ', ' + o.city + ', ' + o.state + ' ' + o.pincode) + '</td><td class="items">' + items + '</td><td class="nowrap">' + rupees(o.total) + '</td>' +
+      '<td class="nowrap">' + esc(methodName(o.paymentMethod)) + '</td>' +
+      '<td><span class="badge b-' + esc(o.paymentStatus) + '">' + esc(PAY[o.paymentStatus] || o.paymentStatus) + '</span></td>' +
+      '<td><span class="badge b-' + esc(o.orderStatus) + '">' + esc(STATUS[o.orderStatus] || o.orderStatus) + '</span></td>' +
+      '<td><button class="btn sm" data-view-order="' + esc(o.orderId) + '">View Order</button></td></tr>';
+  }
+
+  function optionList(keys, labels, selected) { return keys.map(function (k) { return '<option value="' + k + '"' + (k === selected ? ' selected' : '') + '>' + esc(labels[k] || k) + '</option>'; }).join(''); }
+
+  function openOrder(id) {
+    api('admin-orders.php?id=' + encodeURIComponent(id)).then(function (d) {
+      if (!d.ok) { toast(d.error || 'Could not load order.', true); return; }
+      var o = d.order, pays = d.payments || [];
+      $('odTitle').textContent = 'Order ' + o.orderId;
+      var rows = o.items.map(function (i) { return '<tr><td>' + esc(i.name) + '</td><td>' + esc(i.size) + '</td><td>' + i.qty + '</td><td>' + rupees(i.unitPrice) + '</td><td>' + rupees(i.lineTotal) + '</td></tr>'; }).join('');
+      var okPay = pays.filter(function (p) { return p.kind === 'payment'; })[0];
+      var ref = okPay && okPay.reference ? ' <span class="muted">Ref: ' + esc(okPay.reference) + '</span>' : '';
+      var forward = d.nextStatuses.filter(function (s) { return s !== 'cancelled'; });
+      var canCancel = d.nextStatuses.indexOf('cancelled') >= 0;
+      var hist = d.history.map(function (h) { return '<li>' + esc(STATUS[h.status] || h.status) + ' — ' + esc(when(h.at)) + (h.by ? ' by ' + esc(h.by) : ' (customer order)') + '</li>'; }).join('');
+      var payHist = pays.length ? pays.map(function (p) {
+        var what = p.kind === 'payment' ? 'Payment received' : p.kind === 'refund' ? 'Refund recorded' : 'Online payment attempt failed';
+        return '<li><b>' + what + '</b> — ' + esc(methodName(p.method)) + ', ' + rupees(p.amount) + (p.reference ? ', ref ' + esc(p.reference) : '') + ' — ' + esc(whenDate(p.paidAt)) +
+          (p.by ? ' — by ' + esc(p.by) : (p.source === 'razorpay' ? ' — Razorpay' : '')) + (p.note ? '<br><span class="muted">' + esc(p.note) + '</span>' : '') + '</li>';
+      }).join('') : '<li>No payments recorded yet.</li>';
+
+      var html =
+        '<dl class="kv"><dt>Order ID</dt><dd><b>' + esc(o.orderId) + '</b></dd><dt>Order date</dt><dd>' + esc(when(o.createdAt)) + '</dd>' +
+        '<dt>Customer</dt><dd>' + esc(o.customerName) + '</dd><dt>Mobile</dt><dd>' + esc(o.mobile) + '</dd><dt>Email</dt><dd>' + esc(o.email) + '</dd>' +
+        '<dt>Delivery address</dt><dd>' + esc(o.address) + '<br>' + esc(o.city) + ', ' + esc(o.state) + ' ' + esc(o.pincode) + '</dd>' +
+        '<dt>Payment method</dt><dd>' + esc(methodName(o.paymentMethod)) + '</dd>' +
+        '<dt>Payment Status</dt><dd><span class="badge b-' + esc(o.paymentStatus) + '">' + esc(PAY[o.paymentStatus] || o.paymentStatus) + '</span>' + ref + '</dd>' +
+        '<dt>Order Status</dt><dd><span class="badge b-' + esc(o.orderStatus) + '">' + esc(STATUS[o.orderStatus] || o.orderStatus) + '</span> <span class="muted">(order and payment status are tracked separately)</span></dd>' +
+        (d.razorpayOrderId ? '<dt>Razorpay order</dt><dd>' + esc(d.razorpayOrderId) + '</dd>' : '') + '</dl>' +
+        '<div class="tablewrap"><table style="min-width:0"><thead><tr><th>Product</th><th>Pack</th><th>Qty</th><th>Price</th><th>Amount</th></tr></thead><tbody>' + rows +
+        '<tr><td colspan="4" style="text-align:right"><b>Total</b></td><td><b>' + rupees(o.total) + '</b></td></tr></tbody></table></div>';
+
+      if (o.orderStatus === 'cancelled' && o.paymentStatus === 'paid') {
+        html += '<div class="notice bad"><b>Cancelled, but payment was received.</b> No refund has been made automatically. Refund ' + rupees(o.total) + ' in Razorpay or your bank first, then record the refund below.</div>';
+      } else if (o.orderStatus === 'delivered' && o.paymentStatus === 'pending') {
+        html += '<div class="notice">Delivered, but payment is still <b>pending</b>. Record the payment below once the money has actually been received.</div>';
+      }
+
+      html += '<div class="panel"><h3>Order status</h3>';
+      if (forward.length || canCancel) {
+        html += '<div class="row-actions">' + (forward.length ? '<div style="flex:1 1 220px"><label for="odStatus">Change Order Status to</label><select id="odStatus">' + optionList(forward, STATUS, forward[0]) + '</select></div><button class="btn" id="odSave">Update order status</button>' : '') +
+          (canCancel ? '<button class="btn danger" id="odCancel">Cancel order</button>' : '') + '</div>';
+      } else html += '<p class="muted" style="margin:0">This order is ' + esc((STATUS[o.orderStatus] || o.orderStatus).toLowerCase()) + ' and its status can no longer be changed.</p>';
+      html += '<p class="err" id="odErr" role="alert"></p><b>Status history</b><ul class="hist">' + hist + '</ul></div>';
+
+      html += '<div class="panel"><h3>Payment</h3>';
+      if (d.canRecordPayment) {
+        html += '<p class="hint" style="margin:0 0 10px">Record a payment only after the money has actually been received (for example Cash on Delivery collected by the courier). Only the full order amount can be recorded.</p>' +
+          '<div class="grid2"><div><label for="pyMethod">Payment method</label><select id="pyMethod">' + optionList(OFFLINE, METHOD, o.paymentMethod === 'cod' ? 'cod' : 'cash') + '</select></div>' +
+          '<div><label for="pyAmount">Amount received (₹)</label><input id="pyAmount" type="number" min="1" step="1" value="' + o.total + '"></div>' +
+          '<div><label for="pyDate">Payment date</label><input id="pyDate" type="date" max="' + todayLocal() + '" value="' + todayLocal() + '"></div>' +
+          '<div><label for="pyRef">Transaction / reference no. (optional)</label><input id="pyRef" maxlength="80"></div>' +
+          '<div class="full"><label for="pyNote">Internal notes (optional)</label><input id="pyNote" maxlength="300"></div></div>' +
+          '<div style="margin-top:10px"><button class="btn" id="pySave">Record payment</button></div><p class="err" id="pyErr" role="alert"></p>';
+      } else if (d.canRecordRefund) {
+        html += '<p class="hint" style="margin:0 0 10px">This only records that you refunded the customer; it does not move any money.</p>' +
+          '<div class="grid2"><div><label for="pyMethod">Refunded via</label><select id="pyMethod">' + optionList(REFUND, METHOD, o.paymentMethod === 'razorpay' ? 'razorpay' : 'bank_transfer') + '</select></div>' +
+          '<div><label for="pyAmount">Amount refunded (₹)</label><input id="pyAmount" type="number" min="1" step="1" value="' + o.total + '"></div>' +
+          '<div><label for="pyDate">Refund date</label><input id="pyDate" type="date" max="' + todayLocal() + '" value="' + todayLocal() + '"></div>' +
+          '<div><label for="pyRef">Refund reference (optional)</label><input id="pyRef" maxlength="80"></div>' +
+          '<div class="full"><label for="pyNote">Internal notes (optional)</label><input id="pyNote" maxlength="300"></div></div>' +
+          '<div style="margin-top:10px"><button class="btn" id="pySave">Record refund</button></div><p class="err" id="pyErr" role="alert"></p>';
+      } else if (o.paymentStatus === 'paid') html += '<p class="muted" style="margin:0 0 6px">Payment received in full.</p>';
+      else if (o.paymentStatus === 'refunded') html += '<p class="muted" style="margin:0 0 6px">Payment refunded.</p>';
+      else html += '<p class="muted" style="margin:0 0 6px">Payments cannot be recorded on a cancelled order.</p>';
+      html += '<b>Payment history</b><ul class="hist">' + payHist + '</ul></div>';
+      $('odBody').innerHTML = html;
+
+      function reload() { loadOrders(); openOrder(o.orderId); }
+      function postOrder(body, btn, errId, okMsg) {
+        btn.disabled = true;
+        post('admin-orders.php', Object.assign({ orderId: o.orderId }, body)).then(function (r) {
+          btn.disabled = false;
+          if (r.ok) { toast(okMsg(r)); reload(); } else $(errId).textContent = r.error || 'Update failed.';
+        }).catch(function () { btn.disabled = false; $(errId).textContent = 'Network error. Nothing was changed.'; });
+      }
+      if ($('odSave')) $('odSave').addEventListener('click', function () {
+        postOrder({ action: 'status', status: $('odStatus').value }, this, 'odErr', function (r) { return 'Order status updated to ' + STATUS[r.orderStatus]; });
+      });
+      if ($('odCancel')) $('odCancel').addEventListener('click', function () {
+        if (!confirm('Cancel order ' + o.orderId + '?\n\nThe customer will see it as Cancelled. ' + (o.paymentStatus === 'paid' ? 'The payment already received will NOT be refunded automatically.' : 'This cannot be undone.'))) return;
+        postOrder({ action: 'status', status: 'cancelled', confirm: true }, this, 'odErr', function () { return 'Order cancelled'; });
+      });
+      if ($('pySave')) $('pySave').addEventListener('click', function () {
+        var refund = !!d.canRecordRefund, amt = parseInt($('pyAmount').value, 10);
+        $('pyErr').textContent = '';
+        if (!(amt >= 1)) { $('pyErr').textContent = 'Enter the amount as a whole number of rupees.'; return; }
+        if (!confirm(refund ? 'Record that ' + rupees(amt) + ' was refunded for ' + o.orderId + '?' : 'Mark ' + o.orderId + ' as PAID?\n\nOnly do this after you have actually received ' + rupees(amt) + '.')) return;
+        postOrder({ action: refund ? 'record_refund' : 'record_payment', method: $('pyMethod').value, amount: amt, paidAt: $('pyDate').value, reference: $('pyRef').value, note: $('pyNote').value }, this, 'pyErr',
+          function () { return refund ? 'Refund recorded' : 'Payment recorded — order marked Paid'; });
+      });
+      if (!$('orderDlg').open) $('orderDlg').showModal();
+    });
+  }
+
+  // ---- products -------------------------------------------------------------------
+  function loadProducts() {
+    return api('admin-products.php').then(function (d) {
+      if (!d.ok) { if (d.httpStatus !== 401) toast(d.error || 'Could not load products.', true); return; }
+      products = d.products; categories = d.categories; sectionKeys = d.sectionKeys || [];
+      $('pCat').innerHTML = categories.map(function (c) { return '<option value="' + esc(c.slug) + '">' + esc(c.name) + '</option>'; }).join('');
+      $('pBody').innerHTML = products.length ? products.map(productRow).join('') : '<tr><td colspan="7" class="muted">No products yet.</td></tr>';
+      document.querySelectorAll('[data-edit]').forEach(function (b) { b.addEventListener('click', function () { openProduct(+b.dataset.edit); }); });
+      document.querySelectorAll('[data-toggle]').forEach(function (b) { b.addEventListener('click', function () { toggleProduct(+b.dataset.toggle); }); });
+      document.querySelectorAll('[data-delete]').forEach(function (b) { b.addEventListener('click', function () { deleteProduct(+b.dataset.delete); }); });
+    });
+  }
+  function productRow(p) {
+    var prices = p.sizes.map(function (s) { return s.price; }), min = Math.min.apply(null, prices), max = Math.max.apply(null, prices);
+    return '<tr><td><img class="thumb" src="' + esc(p.image || PLACEHOLDER) + '" alt="" onerror="this.onerror=null;this.src=\'' + PLACEHOLDER + '\'"></td>' +
+      '<td><b>' + esc(p.name) + '</b>' + (p.subtitle ? '<div class="muted">' + esc(p.subtitle) + '</div>' : '') + '</td><td>' + esc(catName(p.category)) + '</td>' +
+      '<td class="nowrap">' + (p.sizes.length ? (min === max ? rupees(min) : rupees(min) + ' – ' + rupees(max)) : '—') + '</td>' +
+      '<td>' + p.sizes.map(function (s) { return esc(s.label) + ' <span class="muted">' + rupees(s.price) + '</span>'; }).join('<br>') + '</td>' +
+      '<td><span class="badge ' + (p.active ? 'b-active">Active' : 'b-inactive">Inactive') + '</span></td>' +
+      '<td><div class="actions"><button class="btn ghost sm" data-edit="' + p.id + '">Edit</button> <a class="btn ghost sm" style="text-decoration:none;display:inline-block" href="/shop/product/' + encodeURIComponent(p.slug) + '" target="_blank" rel="noopener">View</a> ' +
+      '<button class="btn ghost sm" data-toggle="' + p.id + '">' + (p.active ? 'Deactivate' : 'Activate') + '</button> <button class="btn danger sm" data-delete="' + p.id + '">Delete</button></div></td></tr>';
+  }
+  function toggleProduct(id) {
+    var p = products.filter(function (x) { return x.id === id; })[0];
+    post('admin-products.php', { action: 'toggle', id: id, active: !p.active }).then(function (d) {
+      if (d.ok) { toast(p.name + (d.product.active ? ' activated' : ' deactivated')); loadProducts(); } else toast(d.error || 'Update failed.', true);
+    });
+  }
+  function deleteProduct(id) {
+    var p = products.filter(function (x) { return x.id === id; })[0];
+    if (!confirm('Delete "' + p.name + '"?\n\n• It is removed from the Shop and from this list.\n• Existing orders keep their own copy of this product\'s name, pack size and price, so order history and reports are NOT affected.\n• To hide it temporarily instead, use Deactivate.\n\nDelete this product?')) return;
+    post('admin-products.php', { action: 'delete', id: id, confirm: true }).then(function (d) {
+      if (d.ok) { toast(p.name + ' deleted'); loadProducts(); } else toast(d.error || 'Delete failed.', true);
+    }).catch(function () { toast('Network error. Nothing was deleted.', true); });
+  }
+
+  function sizeRow(label, price) {
+    var d = document.createElement('div'); d.className = 'vrow';
+    d.innerHTML = '<input class="vl" placeholder="Pack size, e.g. 1 Kg" maxlength="60" value="' + esc(label) + '" required><input class="vp" type="number" min="1" step="1" placeholder="Price ₹" value="' + esc(price) + '" required><button type="button" class="btn ghost sm">Remove</button>';
+    d.querySelector('button').addEventListener('click', function () { if ($('pSizes').children.length > 1) d.remove(); });
+    $('pSizes').appendChild(d);
+  }
+  $('pAddSize').addEventListener('click', function () { sizeRow('', ''); });
+  $('pAdd').addEventListener('click', function () { openProduct(null); });
+
+  // ---- product detail sections editor (heading + bullet points, ordered) -------------------
+  function sectionLabel(key) { var k = sectionKeys.filter(function (x) { return x.key === key; })[0]; return k ? k.label : key; }
+  function bulletRow(text) {
+    var r = document.createElement('div'); r.className = 'brow';
+    r.innerHTML = '<input class="bi" maxlength="500" placeholder="Bullet point" value="' + esc(text) + '"><div class="ctl">' +
+      '<button type="button" class="btn ghost xs" data-act="up" title="Move up" aria-label="Move bullet up">↑</button><button type="button" class="btn ghost xs" data-act="down" title="Move down" aria-label="Move bullet down">↓</button>' +
+      '<button type="button" class="btn danger xs" data-act="del" title="Remove bullet" aria-label="Remove bullet">✕</button></div>';
+    return r;
+  }
+  function secCard(key, heading, items) {
+    var c = document.createElement('div'); c.className = 'sec-card'; c.dataset.key = key;
+    c.innerHTML = '<div class="sec-head"><span class="tag">' + esc(sectionLabel(key)) + '</span><input class="sh" maxlength="80" placeholder="Section heading" value="' + esc(heading) + '" aria-label="Section heading">' +
+      '<button type="button" class="btn ghost xs" data-act="sup">Move section up</button><button type="button" class="btn ghost xs" data-act="sdown">Move section down</button><button type="button" class="btn danger xs" data-act="sdel">Remove section</button></div>' +
+      '<div class="bullets"></div><button type="button" class="btn ghost sm" data-act="add">+ Add bullet point</button>';
+    var list = c.querySelector('.bullets');
+    (items.length ? items : ['']).forEach(function (t) { list.appendChild(bulletRow(t)); });
+    return c;
+  }
+  function refreshSecAdd() {
+    var used = Array.prototype.map.call($('pSecs').children, function (c) { return c.dataset.key; });
+    var left = sectionKeys.filter(function (k) { return used.indexOf(k.key) < 0; });
+    $('pSecAdd').innerHTML = left.map(function (k) { return '<option value="' + k.key + '">' + esc(k.label) + '</option>'; }).join('');
+    $('pSecAdd').disabled = $('pSecAddBtn').disabled = !left.length;
+  }
+  $('pSecs').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-act]'); if (!b) return;
+    var act = b.dataset.act, card = b.closest('.sec-card'), row = b.closest('.brow');
+    if (act === 'add') { var nr = bulletRow(''); card.querySelector('.bullets').appendChild(nr); nr.querySelector('input').focus(); }
+    else if (act === 'del') { var list = row.parentNode; row.remove(); if (!list.children.length) list.appendChild(bulletRow('')); }
+    else if (act === 'up' && row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
+    else if (act === 'down' && row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling, row);
+    else if (act === 'sup' && card.previousElementSibling) card.parentNode.insertBefore(card, card.previousElementSibling);
+    else if (act === 'sdown' && card.nextElementSibling) card.parentNode.insertBefore(card.nextElementSibling, card);
+    else if (act === 'sdel') { card.remove(); refreshSecAdd(); }
+  });
+  $('pSecAddBtn').addEventListener('click', function () {
+    var key = $('pSecAdd').value; if (!key) return;
+    var c = secCard(key, '', []); $('pSecs').appendChild(c); refreshSecAdd(); c.querySelector('.bi').focus();
+  });
+  function collectSections() {
+    return Array.prototype.map.call($('pSecs').children, function (c) {
+      return { key: c.dataset.key, heading: c.querySelector('.sh').value, items: Array.prototype.map.call(c.querySelectorAll('.bi'), function (i) { return i.value; }) };
+    });
+  }
+
+  function setPreview(src) { $('pImg').src = src || PLACEHOLDER; }
+  function openProduct(id) {
+    editing = id ? products.filter(function (x) { return x.id === id; })[0] : null;
+    pendingFile = null; if (pendingPreview) { URL.revokeObjectURL(pendingPreview); pendingPreview = null; }
+    $('pFile').value = ''; $('pErr').textContent = '';
+    $('pdTitle').textContent = editing ? 'Edit product' : 'Add product';
+    $('pName').value = editing ? editing.name : ''; $('pCat').value = editing ? editing.category : (categories[0] ? categories[0].slug : '');
+    $('pSub').value = editing && editing.subtitle ? editing.subtitle : '';
+    $('pDescHead').value = editing && editing.descriptionHeading ? editing.descriptionHeading : '';
+    $('pDesc').value = editing && editing.description ? editing.description : '';
+    $('pActive').checked = editing ? editing.active : true;
+    imageValue = editing ? editing.image : null; setPreview(imageValue);
+    $('pSizes').innerHTML = '';
+    (editing && editing.sizes.length ? editing.sizes : [{ label: '', price: '' }]).forEach(function (s) { sizeRow(s.label, s.price); });
+    $('pSecs').innerHTML = '';
+    (editing ? editing.sections : []).forEach(function (s) { $('pSecs').appendChild(secCard(s.key, s.heading, s.items)); });
+    refreshSecAdd();
+    $('prodDlg').showModal();
+  }
+  $('pFile').addEventListener('change', function () {
+    var f = this.files[0]; $('pErr').textContent = '';
+    if (!f) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(f.type)) { $('pErr').textContent = 'Only JPG, PNG or WebP images are allowed.'; this.value = ''; return; }
+    if (f.size > 5 * 1024 * 1024) { $('pErr').textContent = 'Image is too large (max 5 MB).'; this.value = ''; return; }
+    pendingFile = f; if (pendingPreview) URL.revokeObjectURL(pendingPreview);
+    pendingPreview = URL.createObjectURL(f); setPreview(pendingPreview);
+  });
+  $('pImgClear').addEventListener('click', function () { pendingFile = null; $('pFile').value = ''; imageValue = null; setPreview(null); });
+  $('pImg').addEventListener('error', function () { if (this.src.indexOf('product-placeholder') < 0) this.src = PLACEHOLDER; });
+
+  $('pForm').addEventListener('submit', function (e) {
+    e.preventDefault(); $('pErr').textContent = '';
+    var sizes = Array.prototype.map.call($('pSizes').children, function (r) { return { label: r.querySelector('.vl').value, price: parseInt(r.querySelector('.vp').value, 10) }; });
+    if (sizes.some(function (s) { return !s.label.trim() || !(s.price >= 1); })) { $('pErr').textContent = 'Each pack size needs a label and a whole-rupee price.'; return; }
+    var btn = $('pSave'); btn.disabled = true;
+    var upload = pendingFile ? (function () { var fd = new FormData(); fd.append('image', pendingFile); return api('admin-products.php', { method: 'POST', body: fd }); })() : Promise.resolve({ ok: true, path: imageValue });
+    upload.then(function (u) {
+      if (!u.ok) throw new Error(u.error || 'Image upload failed.');
+      return post('admin-products.php', { action: 'save', id: editing ? editing.id : null, name: $('pName').value, category: $('pCat').value,
+        subtitle: $('pSub').value, descriptionHeading: $('pDescHead').value, description: $('pDesc').value, active: $('pActive').checked, sizes: sizes, image: u.path || null, sections: collectSections() });
+    }).then(function (d) {
+      btn.disabled = false;
+      if (d.ok) { $('prodDlg').close(); toast('Product saved'); loadProducts(); } else $('pErr').textContent = d.error || 'Could not save.';
+    }).catch(function (err) { btn.disabled = false; $('pErr').textContent = err.message || 'Network error. Nothing was saved.'; });
+  });
+
+  // ---- category management -------------------------------------------------------------------
+  var movingCat = null;
+  $('catManage').addEventListener('click', function () { movingCat = null; $('catErr').textContent = ''; loadCategories().then(function () { $('catDlg').showModal(); }); });
+  function loadCategories() {
+    return api('admin-categories.php').then(function (d) {
+      if (!d.ok) { toast(d.error || 'Could not load categories.', true); return; }
+      renderCategories(d.categories);
+    });
+  }
+  function applyCategories(list) {
+    categories = list.map(function (c) { return { slug: c.slug, name: c.name }; });
+    var cur = $('pCat').value;
+    $('pCat').innerHTML = categories.map(function (c) { return '<option value="' + esc(c.slug) + '">' + esc(c.name) + '</option>'; }).join('');
+    if (cur) $('pCat').value = cur;
+  }
+  function renderCategories(list) {
+    applyCategories(list);
+    $('catList').innerHTML = list.map(function (c) {
+      var mv = movingCat === c.id ? '<div class="cat-move"><div><b>' + c.productCount + ' product' + (c.productCount === 1 ? '' : 's') + ' use' + (c.productCount === 1 ? 's' : '') + ' this category.</b> Move ' + (c.productCount === 1 ? 'it' : 'them') + ' to:</div>' +
+        '<select data-move-to="' + c.id + '">' + list.filter(function (x) { return x.id !== c.id; }).map(function (x) { return '<option value="' + esc(x.slug) + '">' + esc(x.name) + '</option>'; }).join('') + '</select>' +
+        '<div style="display:flex;gap:8px"><button class="btn danger sm" data-move-go="' + c.id + '">Move products and delete category</button><button class="btn ghost sm" data-move-cancel="1">Cancel</button></div></div>' : '';
+      return '<div class="cat-row"><input value="' + esc(c.name) + '" maxlength="40" data-cat-name="' + c.id + '" aria-label="Category name"><span class="muted nowrap">' + c.productCount + ' product' + (c.productCount === 1 ? '' : 's') + '</span>' +
+        '<span class="actions"><button class="btn ghost sm" data-cat-save="' + c.id + '">Save name</button><button class="btn danger sm" data-cat-del="' + c.id + '">Delete</button></span>' + mv + '</div>';
+    }).join('');
+  }
+  function catAction(body, okMsg) {
+    $('catErr').textContent = '';
+    return post('admin-categories.php', body).then(function (d) {
+      if (d.ok) { movingCat = null; renderCategories(d.categories); toast(okMsg); loadProducts(); } else $('catErr').textContent = d.error || 'Could not save.';
+      return d;
+    }).catch(function () { $('catErr').textContent = 'Network error. Nothing was changed.'; });
+  }
+  $('catAddForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    catAction({ action: 'create', name: $('catNew').value }, 'Category added').then(function (d) { if (d && d.ok) $('catNew').value = ''; });
+  });
+  $('catList').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.catSave) catAction({ action: 'rename', id: +b.dataset.catSave, name: document.querySelector('[data-cat-name="' + b.dataset.catSave + '"]').value }, 'Category renamed');
+    else if (b.dataset.catDel) {
+      var id = +b.dataset.catDel, row = b.closest('.cat-row'), name = row.querySelector('input').value;
+      var n = parseInt(row.querySelector('.muted').textContent, 10) || 0;
+      if (n > 0) { movingCat = id; $('catErr').textContent = ''; loadCategories(); }
+      else if (confirm('Delete the category "' + name + '"? It has no products.')) catAction({ action: 'delete', id: id }, 'Category deleted');
+    }
+    else if (b.dataset.moveGo) {
+      var to = document.querySelector('[data-move-to="' + b.dataset.moveGo + '"]').value;
+      if (confirm('Move all products of this category to "' + catName(to) + '" and delete the category?')) catAction({ action: 'delete', id: +b.dataset.moveGo, reassignTo: to }, 'Products moved, category deleted');
+    }
+    else if (b.dataset.moveCancel) { movingCat = null; loadCategories(); }
+  });
+
+  // ---- boot -----------------------------------------------------------------------
+  api('admin-auth.php').then(function (d) { if (d.ok) showApp(d.user, d.csrf); else showLogin(); }).catch(showLogin);
+})();
+</script>
+</body>
+</html>

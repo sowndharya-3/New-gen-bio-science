@@ -1,0 +1,31 @@
+# NEWGEN BIOSCIENCE — single-page app
+# All routes (/products/ruminant, /products/poultry/flavinta, ...) are handled
+# by the JS router in index.html, so any URL that is not a real file on disk
+# must be served index.html instead of an Apache 404.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Never rewrite requests for files or directories that actually exist
+    # (this is what lets /assets/*.webp be served normally).
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+# Correct MIME type for .webp on older server configs
+<IfModule mod_mime.c>
+    AddType image/webp .webp
+</IfModule>
+
+# Cache images, but keep index.html always fresh so router changes go live
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png  "access plus 1 month"
+    ExpiresByType text/html  "access plus 0 seconds"
+</IfModule>

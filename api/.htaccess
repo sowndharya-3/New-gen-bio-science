@@ -1,0 +1,5 @@
+# Keep secrets and schema files private; only the *.php endpoints are public.
+<FilesMatch "^(config.*\.php|bootstrap\.php|.*-lib\.php|.*\.sql|.*\.sample\.php)$">
+    Require all denied
+</FilesMatch>
+Options -Indexes

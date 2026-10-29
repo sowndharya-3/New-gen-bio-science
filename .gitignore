@@ -1,0 +1,19 @@
+# secrets / server-specific
+api/config.php
+.env*
+# runtime data (keep the .htaccess that blocks script execution)
+uploads/products/*
+!uploads/products/.htaccess
+*.sqlite
+*.db
+# build output and local screenshots
+*.zip
+/*.png
+# editor / agent tooling and local notes
+.playwright-mcp/
+.remember/
+.agents/
+.cursor/
+.gemini/
+.vscode/
+drive-folder-snapshot*.md

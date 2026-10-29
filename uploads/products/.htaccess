@@ -1,0 +1,18 @@
+# Uploaded product images: serve images only, never execute anything.
+Options -ExecCGI -Indexes
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phar .pl .py .cgi
+<FilesMatch "(?i)\.(php\d?|phtml|phar|pl|py|cgi|sh|html?|js|svg)$">
+    Require all denied
+</FilesMatch>
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
