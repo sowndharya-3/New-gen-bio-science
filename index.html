@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-site-verification" content="7LzWvO0E0eK5lGMNpYFO4Dz0_EGfaeBPgIy8vOFC4ac" />
     <title>NEWGEN BIOSCIENCE</title>
+
+    <!-- Google Tag Manager -->
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-P8KDLRBZ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    </script>
 
     <!-- Google Font: Poppins & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -7369,12 +7378,12 @@
 
                     <div class="aqua-product-card">
                         <div class="product-image">
-                            <img src="/assets/Inocel.webp" alt="Inocel™" loading="lazy" />
+                            <img src="/assets/Innocell.webp" alt="Innocell™" loading="lazy" />
                         </div>
-                        <h3 class="product-name">Inocel™</h3>
+                        <h3 class="product-name">Innocell™</h3>
                         <p class="product-tagline">Immunity & health enhancer</p>
                         <p class="product-description">Synergistic formulation of beta-glucans, selenobiotics, sulphated polysaccharides, vitamin C, and CoQ10 to enhance shrimp immune responses and reduce stress.</p>
-                        <button class="product-btn" data-product="inocel">Learn More</button>
+                        <button class="product-btn" data-product="innocell">Learn More</button>
                     </div>
 
                     <div class="aqua-product-card">
@@ -8678,12 +8687,12 @@ SCRIPTS
                 presentation: ['Tablets and granules in 5 kg container']
             }
         },
-        'inocel': {
-            id: 'inocel',
-            name: 'Inocel™',
+        'innocell': {
+            id: 'innocell',
+            name: 'Innocell™',
             tagline: 'Immunity & health enhancer',
-            shortDesc: 'Inocel™ is a synergistic formulation of beta-glucans, selenobiotics, sulphated polysaccharides, vitamin C, and CoQ10. It is specially designed to enhance shrimp immune responses, improve antioxidant defense, and reduce stress for better survival.',
-            image: '/assets/Inocel.webp',
+            shortDesc: 'Innocell™ is a synergistic formulation of beta-glucans, selenobiotics, sulphated polysaccharides, vitamin C, and CoQ10. It is specially designed to enhance shrimp immune responses, improve antioxidant defense, and reduce stress for better survival.',
+            image: '/assets/Innocell.webp',
             banner: '/assets/Aquaculture.png',
             category: 'aquaculture',
             sections: {
@@ -9516,6 +9525,8 @@ SCRIPTS
         let normalized = path;
         if (!path.startsWith('/')) normalized = '/' + path;
         if (normalized.length > 1 && normalized.endsWith('/')) normalized = normalized.slice(0, -1);
+        // Product renamed Inocel -> Innocell (Nov 2026); keep the old URL working.
+        if (normalized === '/products/aquaculture/inocel') normalized = '/products/aquaculture/innocell';
         let pageId = allRoutes[normalized];
         if (!pageId && /^\/shop\/product\/[a-z0-9-]+$/.test(normalized)) pageId = 'page-shop-product-detail';
         // Always derive the product key from the URL itself. allRoutes already
