@@ -9526,7 +9526,10 @@ SCRIPTS
         if (!path.startsWith('/')) normalized = '/' + path;
         if (normalized.length > 1 && normalized.endsWith('/')) normalized = normalized.slice(0, -1);
         // Product renamed Inocel -> Innocell (Nov 2026); keep the old URL working.
-        if (normalized === '/products/aquaculture/inocel') normalized = '/products/aquaculture/innocell';
+        if (normalized === '/products/aquaculture/inocel') {
+            normalized = '/products/aquaculture/innocell';
+            if (!pushState) window.history.replaceState(null, '', normalized);   // show the new URL on a direct visit
+        }
         let pageId = allRoutes[normalized];
         if (!pageId && /^\/shop\/product\/[a-z0-9-]+$/.test(normalized)) pageId = 'page-shop-product-detail';
         // Always derive the product key from the URL itself. allRoutes already
