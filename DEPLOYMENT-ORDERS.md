@@ -2,6 +2,12 @@
 
 This package is deployed by the hosting/deployment team; the developer has no access to the production server. The Hostinger deployment has **not yet passed the production smoke test** below – do not treat the system as production-ready until it has. Items marked **[DEPLOY TEAM]** need confirmation from the people who run the server.
 
+## What this release adds (2026-11 update)
+
+- **Innocell™ (Aquaculture):** product renamed from *Inocel* per the client. New packaging image `assets/Innocell.webp` (the old `assets/Inocel.webp` is no longer used). The product page is now `/products/aquaculture/innocell`; the old `/products/aquaculture/inocel` link still opens it and switches to the new URL.
+- **Google tags:** Google Tag Manager (`GTM-P8KDLRBZ`) and the Google Search Console `google-site-verification` meta tag are in the `<head>` of `index.html`. The site is a single page, so this one head covers every route; no change to `admin/`.
+- **SporoGEN-WS shop page:** the "Complete Gut Health Solution" heading above the description was removed from the code and the seed/migration SQL. On an **existing** database it is stored in the `products` table and must be cleared once (step 2b below).
+
 ## What this release adds (2026-10)
 
 - **Product page content from the database:** subtitle (SporoGEN-WS now shows `ENRICH THE INTESTINAL HEALTH`), description heading, description, and five detail sections (Benefits, Features, Mode of Action, Recommendation, Presentation) with ordered bullet points – all editable in the admin panel.
@@ -45,7 +51,14 @@ The production database already has the earlier tables, so use the **migration**
    - Existing orders, customers, products, prices, pack sizes and images are not changed. Old orders show payment method **Not recorded**.
    - It seeds the four default categories and moves the existing product text (subtitle, description, detail sections) from the website into the database **once**, so it becomes editable in the admin panel. It also renames *SporoGEN Poultry* to **SporoGEN-WS** with the packaging subtitle. A marker row in `schema_migrations` stops it from ever overwriting admin edits on a re-run.
    - Verify: `SHOW TABLES;` now includes `categories`, `payments`, `product_sections`, `product_section_items`, `admin_audit_log`, `schema_migrations`; and `SELECT COUNT(*) FROM categories;` returns 4.
-3. Upload `index.html`, `admin/` and the whole `api/` folder. **Do not overwrite** your server config (`newgen-config.php` or `api/config.php`) or anything in `uploads/products/`.
+   - **2b. Already upgraded in October?** Skip the import and run only this one statement (phpMyAdmin → SQL) to remove the old SporoGEN-WS heading:
+
+     ```sql
+     UPDATE products SET description_heading = NULL WHERE slug = 'sporogen-poultry';
+     ```
+
+     Alternatively, in the admin panel open SporoGEN-WS and clear the **Description heading** field.
+3. Upload `index.html`, `admin/`, the whole `api/` folder and `assets/Innocell.webp` (delete `assets/Inocel.webp` from the server). **Do not overwrite** your server config (`newgen-config.php` or `api/config.php`) or anything in `uploads/products/`.
 4. Check the live site and admin panel with the smoke test below. Cash on Delivery works immediately; online payment stays disabled until the Razorpay keys are added (next section).
 5. Delete the `tools/` folder from the server if it is still there, and any `.sql` files containing password hashes.
 
