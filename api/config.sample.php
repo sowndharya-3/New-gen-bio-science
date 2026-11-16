@@ -12,7 +12,7 @@ return [
 
     // Notification e-mails (enquiry form, new orders) go to this address, sent with PHP mail() through the
     // host's mail system. 'mail_from' should be an address on the site's own domain or the host may drop the mail.
-    'notify_email' => 'marketing@newgenbioscice.com',   // exactly as supplied by the client - CONFIRM THE SPELLING with them
+    'notify_email' => 'marketing@newgenbioscience.com',   // recipient for enquiries and new orders
     'mail_from'    => 'no-reply@newgenbioscience.com',
 
     // Online payments (Razorpay). Leave these out or as CHANGE_ME and the checkout offers

@@ -62,7 +62,7 @@ This package is deployed by the hosting/deployment team; the developer has no ac
 - **Outgoing e-mail from PHP** (`mail()`; enabled by default on Hostinger). Notification mails are sent from `mail_from`, which must be an address **on the site's own domain** (SPF/DKIM), otherwise receiving servers may reject or spam them. Add to the server config (see `api/config.sample.php`):
 
   ```php
-  'notify_email' => 'marketing@newgenbioscice.com',   // recipient for enquiries and new orders
+  'notify_email' => 'marketing@newgenbioscience.com',   // recipient for enquiries and new orders
   'mail_from'    => 'no-reply@newgenbioscience.com',  // sender; must exist on / be allowed for the site's domain
   ```
 
