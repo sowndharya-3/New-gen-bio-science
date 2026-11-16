@@ -2,6 +2,7 @@
 declare(strict_types=1);
 require __DIR__ . '/bootstrap.php';
 require __DIR__ . '/payment-lib.php';
+require __DIR__ . '/mail-lib.php';
 require_method('POST');
 
 $in = read_json();
@@ -140,4 +141,24 @@ try {
 
 $q = $pdo->prepare('SELECT * FROM orders WHERE public_id = ?');
 $q->execute([$publicId]);
-respond(201, order_response($q->fetch(), false));
+$order = $q->fetch();
+
+// Tell the office. Sent once per order: this point is reached only when a new order was just saved
+// (repeated submits of the same checkout return earlier). A mail problem is logged and never affects the order.
+try {
+    $itemLines = [];
+    foreach ($lines as $l) $itemLines[] = sprintf('- %s (%s) x %d @ Rs %d = Rs %d', $l['name'], $l['size'], $l['qty'], $l['unit'], $l['total']);
+    $body = "New order on the NewGen Bioscience website\n\n"
+          . mail_lines(['Order ID' => $publicId, 'Placed' => gmdate('Y-m-d H:i', $now) . ' UTC',
+                        'Payment method' => $method === 'razorpay' ? 'Online payment (Razorpay) - pending until the payment is confirmed' : 'Cash on Delivery',
+                        'Order total' => 'Rs ' . $total])
+          . "\n\nItems:\n" . implode("\n", $itemLines) . "\n\n"
+          . mail_lines(['Customer' => $name, 'Mobile' => $mobile, 'Email' => $email,
+                        'Address' => $address, 'City' => $city, 'State' => $state, 'Pincode' => $pincode])
+          . "\n\nManage it in the admin panel: https://" . ($_SERVER['HTTP_HOST'] ?? '') . "/admin/\n";
+    send_notification('New order ' . $publicId . ' - ' . $name, $body, $email);
+} catch (Throwable $e) {
+    error_log('newgen create-order mail: ' . $e->getMessage());
+}
+
+respond(201, order_response($order, false));

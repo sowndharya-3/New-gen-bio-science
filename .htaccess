@@ -13,6 +13,17 @@
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
+    # Permanent redirects for product URLs that were renamed (Nov 2026).
+    RewriteRule ^products/aquaculture/inocel/?$        /products/aquaculture/innocell [R=301,L]
+    RewriteRule ^products/poultry/ultra-zyme/?$        /products/poultry/ultrazyme    [R=301,L]
+    RewriteRule ^products/poultry/flora-zyme/?$        /products/poultry/florazyme    [R=301,L]
+    RewriteRule ^products/aquaculture/sporogen-aqua/?$ /products/aquaculture/sporogen [R=301,L]
+    RewriteRule ^products/aquaculture/spark-2x-aqua/?$ /products/aquaculture/spark-2x [R=301,L]
+    RewriteRule ^products/aquaculture/opti-ph-aqua/?$  /products/aquaculture/opti-ph  [R=301,L]
+    RewriteRule ^shop/product/sporogen-poultry/?$      /shop/product/sporogen         [R=301,L]
+    RewriteRule ^shop/product/milkma-shop/?$           /shop/product/milkma           [R=301,L]
+    RewriteRule ^shop/product/breed-ezy-shop/?$        /shop/product/breed-ezy        [R=301,L]
+
     RewriteRule ^ index.html [L]
 </IfModule>
 

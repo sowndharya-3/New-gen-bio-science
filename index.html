@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="7LzWvO0E0eK5lGMNpYFO4Dz0_EGfaeBPgIy8vOFC4ac" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
     <title>NEWGEN BIOSCIENCE</title>
 
     <!-- Google Tag Manager -->
@@ -7712,6 +7716,7 @@
                                 <div class="success-alert" id="successAlert">
                                     <i class="bi bi-check-circle-fill me-2"></i> Thank you! Your message has been sent successfully. Our team will get back to you within 24 hours.
                                 </div>
+                                <div class="success-alert" id="contactError" role="alert" style="background:#fdecea; color:#b42318; border-color:#f5c6c3;"></div>
                             </div>
 
                         </div>
@@ -8733,8 +8738,8 @@ SCRIPTS
     // Offline fallback only. When /api/products.php answers, products (including subtitle, description
     // heading, description and detail sections) come from the database and replace this data.
     const shopProducts = {
-        'sporogen-poultry': {
-            id: 'sporogen-poultry',
+        'sporogen': {
+            id: 'sporogen',
             name: 'SporoGEN-WS',
             category: 'poultry',
             subtitle: 'ENRICH THE INTESTINAL HEALTH',
@@ -8790,16 +8795,16 @@ SCRIPTS
             sizes: [{ label: '1 Kg', price: 790 }],
             catalogKey: 'flavinta',
         },
-        'milkma-shop': {
-            id: 'milkma-shop',
+        'milkma': {
+            id: 'milkma',
             name: 'MilkMa',
             category: 'ruminant',
             image: '/assets/MilkMa-new.webp',
             sizes: [{ label: '1 Kg', price: 460 }],
             catalogKey: 'milkma',
         },
-        'breed-ezy-shop': {
-            id: 'breed-ezy-shop',
+        'breed-ezy': {
+            id: 'breed-ezy',
             name: 'Breed Ezy',
             category: 'ruminant',
             image: '/assets/Breed-Ezy-new.webp',
@@ -8893,6 +8898,9 @@ SCRIPTS
     let currentQuoteProduct = null;
     let cart = [];
     try { cart = JSON.parse(localStorage.getItem('newgenShopCart') || '[]'); } catch (e) { cart = []; }
+    // Carts saved before the Nov 2026 slug change still refer to the old product ids.
+    const legacyShopIds = { 'sporogen-poultry': 'sporogen', 'milkma-shop': 'milkma', 'breed-ezy-shop': 'breed-ezy' };
+    cart.forEach(function(item) { if (legacyShopIds[item.productId]) item.productId = legacyShopIds[item.productId]; });
 
     function saveCart() {
         try { localStorage.setItem('newgenShopCart', JSON.stringify(cart)); } catch (e) {}
@@ -9334,10 +9342,33 @@ SCRIPTS
         shopProductRoutes['/shop/product/' + key] = 'page-shop-product-detail';
     });
 
+    // Public URL slug where it differs from the internal product key (client request, Nov 2026).
+    const catalogSlugs = { 'ultra-zyme': 'ultrazyme', 'flora-zyme': 'florazyme', 'sporogen-aqua': 'sporogen', 'spark-2x-aqua': 'spark-2x', 'opti-ph-aqua': 'opti-ph' };
+    function productPath(key) {
+        return '/products/' + (productData[key].category || 'ruminant') + '/' + (catalogSlugs[key] || key);
+    }
+    function productKeyFromPath(category, slug) {
+        for (const key of Object.keys(productData)) {
+            if ((productData[key].category || 'ruminant') === category && (catalogSlugs[key] || key) === slug) return key;
+        }
+        return null;
+    }
+    // Old URLs still reach the right page (the server also sends 301s for these, see .htaccess).
+    const legacyPaths = {
+        '/products/aquaculture/inocel': '/products/aquaculture/innocell',
+        '/products/poultry/ultra-zyme': '/products/poultry/ultrazyme',
+        '/products/poultry/flora-zyme': '/products/poultry/florazyme',
+        '/products/aquaculture/sporogen-aqua': '/products/aquaculture/sporogen',
+        '/products/aquaculture/spark-2x-aqua': '/products/aquaculture/spark-2x',
+        '/products/aquaculture/opti-ph-aqua': '/products/aquaculture/opti-ph',
+        '/shop/product/sporogen-poultry': '/shop/product/sporogen',
+        '/shop/product/milkma-shop': '/shop/product/milkma',
+        '/shop/product/breed-ezy-shop': '/shop/product/breed-ezy'
+    };
+
     const productRoutes = {};
     for (const key of Object.keys(productData)) {
-        const category = productData[key].category || 'ruminant';
-        productRoutes['/products/' + category + '/' + key] = 'page-product-detail';
+        productRoutes[productPath(key)] = 'page-product-detail';
     }
 
     const allRoutes = { ...routes, ...productRoutes, ...shopProductRoutes };
@@ -9451,8 +9482,7 @@ SCRIPTS
                 const key = this.dataset.productKey;
                 if (key && productData[key]) {
                     window._currentProductKey = key;
-                    const cat = productData[key].category || 'ruminant';
-                    navigateTo('/products/' + cat + '/' + key);
+                    navigateTo(productPath(key));
                 }
             });
             card.addEventListener('keydown', function(e) {
@@ -9525,9 +9555,8 @@ SCRIPTS
         let normalized = path;
         if (!path.startsWith('/')) normalized = '/' + path;
         if (normalized.length > 1 && normalized.endsWith('/')) normalized = normalized.slice(0, -1);
-        // Product renamed Inocel -> Innocell (Nov 2026); keep the old URL working.
-        if (normalized === '/products/aquaculture/inocel') {
-            normalized = '/products/aquaculture/innocell';
+        if (legacyPaths[normalized]) {
+            normalized = legacyPaths[normalized];
             if (!pushState) window.history.replaceState(null, '', normalized);   // show the new URL on a direct visit
         }
         let pageId = allRoutes[normalized];
@@ -9537,9 +9566,10 @@ SCRIPTS
         // whether the route was found there or matched dynamically — otherwise
         // a direct visit or refresh renders whatever product was shown last.
         const match = normalized.match(/^\/products\/(ruminant|poultry|aquaculture)\/(.+)$/);
-        if (match && productData[match[2]]) {
+        const matchedKey = match ? productKeyFromPath(match[1], match[2]) : null;
+        if (matchedKey) {
             pageId = 'page-product-detail';
-            window._currentProductKey = match[2];
+            window._currentProductKey = matchedKey;
             window._currentCategory = match[1];
         }
         if (!pageId) { navigateTo('/', pushState); return; }
@@ -9820,8 +9850,7 @@ SCRIPTS
             const productKey = this.dataset.product;
             if (productKey && productData[productKey]) {
                 window._currentProductKey = productKey;
-                const category = productData[productKey].category || 'ruminant';
-                navigateTo('/products/' + category + '/' + productKey);
+                navigateTo(productPath(productKey));
             }
         });
     });
@@ -10132,7 +10161,7 @@ SCRIPTS
     });
 
     // Get Quote -> WhatsApp, pre-filled with the product currently shown
-    const WHATSAPP_QUOTE_NUMBER = '919994444012';
+    const WHATSAPP_QUOTE_NUMBER = '919944792794';
     document.getElementById('getQuoteBtn')?.addEventListener('click', function(e) {
         e.preventDefault();
         if (!currentQuoteProduct) return;
@@ -10147,7 +10176,7 @@ SCRIPTS
             'Product Name: ' + p.name,
             'Category: ' + (cat ? cat.charAt(0).toUpperCase() + cat.slice(1) : ''),
             'Product Details: ' + details,
-            'Product Page: ' + location.origin + '/products/' + cat + '/' + currentQuoteProduct.key,
+            'Product Page: ' + location.origin + productPath(currentQuoteProduct.key),
             '',
             'Could you please share the quotation and provide further details about this product?',
             '',
@@ -10325,13 +10354,40 @@ SCRIPTS
                     speciesField.classList.add('is-valid');
                 }
                 if (isValid) {
-                    if (successAlert) {
-                        successAlert.classList.add('show');
-                        setTimeout(function() { successAlert.classList.remove('show'); }, 8000);
-                    }
-                    form.reset();
-                    form.querySelectorAll('.is-valid').forEach(el => el.classList.remove('is-valid'));
-                    if (successAlert) successAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const errorAlert = document.getElementById('contactError');
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn.disabled) return;                        // a request is already running
+                    if (errorAlert) errorAlert.classList.remove('show');
+                    submitBtn.disabled = true;
+                    const btnLabel = submitBtn.textContent;
+                    submitBtn.textContent = 'Sending...';
+                    const payload = {
+                        name: document.getElementById('fullName').value,
+                        email: document.getElementById('emailAddress').value,
+                        phone: document.getElementById('phoneNumber').value,
+                        country: document.getElementById('country').value,
+                        profession: document.getElementById('profession').value,
+                        species: document.getElementById('species').value,
+                        message: document.getElementById('message').value,
+                        page: location.href
+                    };
+                    postJSON('enquiry.php', payload).catch(function() { return { ok: false }; }).then(function(data) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = btnLabel;
+                        if (data && data.ok) {
+                            if (successAlert) {
+                                successAlert.classList.add('show');
+                                setTimeout(function() { successAlert.classList.remove('show'); }, 8000);
+                            }
+                            form.reset();
+                            form.querySelectorAll('.is-valid').forEach(el => el.classList.remove('is-valid'));
+                            if (successAlert) successAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } else if (errorAlert) {
+                            errorAlert.textContent = (data && data.error) || 'Sorry, your message could not be sent right now. Please try again later or email us directly.';
+                            errorAlert.classList.add('show');
+                            errorAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    });
                 } else {
                     const firstInvalid = form.querySelector('.is-invalid');
                     if (firstInvalid) {

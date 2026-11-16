@@ -10,6 +10,11 @@ return [
     'db_charset' => 'utf8mb4',
     // Admin staff accounts live in the admin_users table (see tools/create-admin.php).
 
+    // Notification e-mails (enquiry form, new orders) go to this address, sent with PHP mail() through the
+    // host's mail system. 'mail_from' should be an address on the site's own domain or the host may drop the mail.
+    'notify_email' => 'marketing@newgenbioscice.com',   // exactly as supplied by the client - CONFIRM THE SPELLING with them
+    'mail_from'    => 'no-reply@newgenbioscience.com',
+
     // Online payments (Razorpay). Leave these out or as CHANGE_ME and the checkout offers
     // Cash on Delivery only. Keys exist ONLY in this server-side file.
     'razorpay_key_id'         => 'CHANGE_ME',   // e.g. rzp_live_xxxxxxxxxxxxxx (use rzp_test_... for testing)

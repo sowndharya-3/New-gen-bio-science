@@ -22,9 +22,9 @@ INSERT INTO categories (slug, name, sort_order, created_at, updated_at)
 SELECT 'companion', 'Companion', 3, 1761264000, 1761264000 FROM (SELECT 1 AS one) d
 WHERE NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed') AND NOT EXISTS (SELECT 1 FROM categories WHERE slug = 'companion');
 
-UPDATE products SET name = 'SporoGEN-WS' WHERE slug = 'sporogen-poultry' AND name = 'SporoGEN Poultry' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed');
+UPDATE products SET name = 'SporoGEN-WS' WHERE slug = 'sporogen' AND name = 'SporoGEN Poultry' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed');
 
-UPDATE products SET subtitle = COALESCE(subtitle, 'ENRICH THE INTESTINAL HEALTH'), description = COALESCE(description, 'SporoGEN™ is a complete gut health solution formulated with a unique blend of new-generation probiotic spores and prebiotics to support optimal intestinal health and performance in poultry. It contains multi-strain Bacillus spores, yeast, and water-soluble oligosaccharides that help establish a healthy gut microflora, improve nutrient utilization, and reduce enteric challenges.') WHERE slug = 'sporogen-poultry' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed');
+UPDATE products SET subtitle = COALESCE(subtitle, 'ENRICH THE INTESTINAL HEALTH'), description = COALESCE(description, 'SporoGEN™ is a complete gut health solution formulated with a unique blend of new-generation probiotic spores and prebiotics to support optimal intestinal health and performance in poultry. It contains multi-strain Bacillus spores, yeast, and water-soluble oligosaccharides that help establish a healthy gut microflora, improve nutrient utilization, and reduce enteric challenges.') WHERE slug = 'sporogen' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed');
 
 UPDATE products SET subtitle = COALESCE(subtitle, 'Stress-Free Solution'), description = COALESCE(description, 'Stresslyte-C™ is an electrolytes formulation designed to help poultry cope with stress factors. It is a balanced combination of electrolytes, Vitamin C, Betaine, probiotics, and energy sources formulated to restore electrolyte balance, maintain acid–base equilibrium, and improve bird performance during stressful conditions.') WHERE slug = 'stresslyte-c' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed');
 
@@ -38,37 +38,37 @@ UPDATE products SET subtitle = COALESCE(subtitle, 'Most Preferred Flavour for Da
 
 UPDATE products SET subtitle = COALESCE(subtitle, 'Most Preferred Flavour for Dairy Cattle'), description = COALESCE(description, 'Flavinta™ is a premium flavour solution developed to enhance feed palatability and intake in dairy cattle. With its long-lasting sensory effects and stable formulation, Flavinta™ improves the smell and taste of feed, ensures consistent feed acceptance, and supports optimal feed consumption for better productivity.') WHERE slug = 'flavinta-mola' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed');
 
-UPDATE products SET subtitle = COALESCE(subtitle, 'Ideal milk replacer for Calf'), description = COALESCE(description, 'MilkMa™ is a high-quality milk replacer formulated to support healthy growth, immunity, and early development in calves. It provides a balanced supply of energy, proteins, fats, vitamins, and minerals to ensure optimal nutrition during the critical early stages of life.') WHERE slug = 'milkma-shop' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed');
+UPDATE products SET subtitle = COALESCE(subtitle, 'Ideal milk replacer for Calf'), description = COALESCE(description, 'MilkMa™ is a high-quality milk replacer formulated to support healthy growth, immunity, and early development in calves. It provides a balanced supply of energy, proteins, fats, vitamins, and minerals to ensure optimal nutrition during the critical early stages of life.') WHERE slug = 'milkma' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed');
 
-UPDATE products SET subtitle = COALESCE(subtitle, 'Bolus for Better Reproduction'), description = COALESCE(description, 'Breed-Ezy™ is an innovative, proven, safe and highly bioavailable mineral bolus enriched with essential vitamins and fatty acids. It is specially formulated to enhance reproductive performance, improve fertility, and support overall reproductive health in cattle.') WHERE slug = 'breed-ezy-shop' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed');
+UPDATE products SET subtitle = COALESCE(subtitle, 'Bolus for Better Reproduction'), description = COALESCE(description, 'Breed-Ezy™ is an innovative, proven, safe and highly bioavailable mineral bolus enriched with essential vitamins and fatty acids. It is specially formulated to enhance reproductive performance, improve fertility, and support overall reproductive health in cattle.') WHERE slug = 'breed-ezy' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed');
 
 INSERT INTO product_sections (product_id, section_key, heading, sort_order)
 SELECT p.id, t.k, t.h, t.n FROM products p JOIN (SELECT 'benefits' AS k, 'Benefits' AS h, 0 AS n UNION ALL SELECT 'features', 'Features', 1 UNION ALL SELECT 'mode_of_action', 'Mode of Action', 2 UNION ALL SELECT 'recommendation', 'Recommendation', 3 UNION ALL SELECT 'presentation', 'Presentation', 4) t
-WHERE p.slug = 'sporogen-poultry' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed') AND NOT EXISTS (SELECT 1 FROM product_sections s WHERE s.product_id = p.id);
+WHERE p.slug = 'sporogen' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed') AND NOT EXISTS (SELECT 1 FROM product_sections s WHERE s.product_id = p.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'Improves intestinal health in poultry' AS x UNION ALL SELECT 1, 'Promotes the growth of beneficial gut bacteria' UNION ALL SELECT 2, 'Enhances nutrient utilization' UNION ALL SELECT 3, 'Improves body weight gain and Feed Conversion Ratio (FCR)') t
-WHERE p.slug = 'sporogen-poultry' AND s.section_key = 'benefits' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'sporogen' AND s.section_key = 'benefits' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'Micro-encapsulated yeast formulation' AS x UNION ALL SELECT 1, 'Proven strains of beneficial microbes' UNION ALL SELECT 2, 'Microbes present in the form of active spores' UNION ALL SELECT 3, 'Resistant to a wide range of pH and temperature' UNION ALL SELECT 4, 'Contains Mannan Oligo Saccharides (MOS – water soluble)') t
-WHERE p.slug = 'sporogen-poultry' AND s.section_key = 'features' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'sporogen' AND s.section_key = 'features' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'Active probiotic spores survive feed processing and gastric conditions' AS x UNION ALL SELECT 1, 'Colonize the gut and competitively exclude pathogenic bacteria' UNION ALL SELECT 2, 'Improve gut microflora balance and villi integrity' UNION ALL SELECT 3, 'Enhance digestive enzyme activity and nutrient absorption' UNION ALL SELECT 4, 'Support immune response and gut barrier function') t
-WHERE p.slug = 'sporogen-poultry' AND s.section_key = 'mode_of_action' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'sporogen' AND s.section_key = 'mode_of_action' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'Available Variant: WS (Water Soluble), FS (Feed Supplement)' AS x UNION ALL SELECT 1, 'SporoGEN-FS: 25 kg bags' UNION ALL SELECT 2, 'SporoGEN-WS: 100 g, 250 g, 500 g, and 1 kg packs') t
-WHERE p.slug = 'sporogen-poultry' AND s.section_key = 'recommendation' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'sporogen' AND s.section_key = 'recommendation' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'SporoGEN-FS: 25 kg bags' AS x UNION ALL SELECT 1, 'SporoGEN-WS: 100 g, 250 g, 500 g, and 1 kg packs') t
-WHERE p.slug = 'sporogen-poultry' AND s.section_key = 'presentation' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'sporogen' AND s.section_key = 'presentation' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_sections (product_id, section_key, heading, sort_order)
@@ -247,60 +247,60 @@ AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id)
 
 INSERT INTO product_sections (product_id, section_key, heading, sort_order)
 SELECT p.id, t.k, t.h, t.n FROM products p JOIN (SELECT 'benefits' AS k, 'Benefits' AS h, 0 AS n UNION ALL SELECT 'features', 'Features', 1 UNION ALL SELECT 'mode_of_action', 'Mode of Action', 2 UNION ALL SELECT 'recommendation', 'Recommendation', 3 UNION ALL SELECT 'presentation', 'Presentation', 4) t
-WHERE p.slug = 'milkma-shop' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed') AND NOT EXISTS (SELECT 1 FROM product_sections s WHERE s.product_id = p.id);
+WHERE p.slug = 'milkma' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed') AND NOT EXISTS (SELECT 1 FROM product_sections s WHERE s.product_id = p.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'Ideal milk replacer which increases body weight gain and growth rate' AS x UNION ALL SELECT 1, 'Easily digestible for young calves' UNION ALL SELECT 2, 'Minimizes the risk of diarrhoea' UNION ALL SELECT 3, 'Ensures easy mixing and high palatability') t
-WHERE p.slug = 'milkma-shop' AND s.section_key = 'benefits' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'milkma' AND s.section_key = 'benefits' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'Fortified with essential vitamins and minerals' AS x UNION ALL SELECT 1, 'Provides optimal nourishment for newborn calves' UNION ALL SELECT 2, 'Easy to mix and highly palatable' UNION ALL SELECT 3, 'Low in fibre') t
-WHERE p.slug = 'milkma-shop' AND s.section_key = 'features' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'milkma' AND s.section_key = 'features' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'Supplies balanced energy, protein, vitamins, and minerals required for early growth' AS x UNION ALL SELECT 1, 'Provides easily digestible nutrients to support gut health and nutrient absorption' UNION ALL SELECT 2, 'Supports immunity and metabolic development during early life stages' UNION ALL SELECT 3, 'Ensures consistent nutrition when whole milk is insufficient') t
-WHERE p.slug = 'milkma-shop' AND s.section_key = 'mode_of_action' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'milkma' AND s.section_key = 'mode_of_action' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'Bottle feeding is recommended for convenient feeding, controlled nutrition, and to stimulate the natural suckling reflex in calves' AS x UNION ALL SELECT 1, '100–150 g of milk replacer in 1 litre of warm water for 2 months' UNION ALL SELECT 2, 'Follow feeding schedule as recommended by a veterinarian or calf nutrition expert') t
-WHERE p.slug = 'milkma-shop' AND s.section_key = 'recommendation' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'milkma' AND s.section_key = 'recommendation' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'Powder formulation' AS x UNION ALL SELECT 1, '100 g and 1 kg bags') t
-WHERE p.slug = 'milkma-shop' AND s.section_key = 'presentation' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'milkma' AND s.section_key = 'presentation' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_sections (product_id, section_key, heading, sort_order)
 SELECT p.id, t.k, t.h, t.n FROM products p JOIN (SELECT 'benefits' AS k, 'Benefits' AS h, 0 AS n UNION ALL SELECT 'features', 'Features', 1 UNION ALL SELECT 'mode_of_action', 'Mode of Action', 2 UNION ALL SELECT 'recommendation', 'Recommendation', 3 UNION ALL SELECT 'presentation', 'Presentation', 4) t
-WHERE p.slug = 'breed-ezy-shop' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed') AND NOT EXISTS (SELECT 1 FROM product_sections s WHERE s.product_id = p.id);
+WHERE p.slug = 'breed-ezy' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed') AND NOT EXISTS (SELECT 1 FROM product_sections s WHERE s.product_id = p.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'Improves heat expression' AS x UNION ALL SELECT 1, 'Enhances conception rate' UNION ALL SELECT 2, 'Supports development of underdeveloped genitalia' UNION ALL SELECT 3, 'Helps manage delayed onset of puberty' UNION ALL SELECT 4, 'Promotes better fertility and reproductive efficiency') t
-WHERE p.slug = 'breed-ezy-shop' AND s.section_key = 'benefits' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'breed-ezy' AND s.section_key = 'benefits' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'Unique combination of trace minerals, vitamins, beta-carotene, and essential fatty acids' AS x UNION ALL SELECT 1, 'Highly bioavailable formulation for better absorption' UNION ALL SELECT 2, 'Multi-purpose bolus supporting fertility, health, and welfare' UNION ALL SELECT 3, 'Designed to maintain optimal reproductive performance') t
-WHERE p.slug = 'breed-ezy-shop' AND s.section_key = 'features' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'breed-ezy' AND s.section_key = 'features' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'Beta-carotene supports reproductive efficiency by improving conception and pregnancy rates' AS x UNION ALL SELECT 1, 'Omega-3 fatty acids and CoQ10 stimulate PGF₂-alpha production' UNION ALL SELECT 2, 'Strengthens immune competence and uterine health' UNION ALL SELECT 3, 'Helps reduce uterine infections' UNION ALL SELECT 4, 'Promotes a healthier uterine environment for improved fertility outcomes') t
-WHERE p.slug = 'breed-ezy-shop' AND s.section_key = 'mode_of_action' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'breed-ezy' AND s.section_key = 'mode_of_action' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, 'To improve heat: 2 boluses for 10 days during the oestrus cycle' AS x UNION ALL SELECT 1, 'To improve conception rate: 1 bolus for 10 days before and after AI' UNION ALL SELECT 2, 'Underdeveloped genitalia & delayed puberty: 2 boluses for 20 days') t
-WHERE p.slug = 'breed-ezy-shop' AND s.section_key = 'recommendation' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'breed-ezy' AND s.section_key = 'recommendation' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO product_section_items (section_id, text, sort_order)
 SELECT s.id, t.x, t.n FROM product_sections s JOIN products p ON p.id = s.product_id JOIN (SELECT 0 AS n, '4 Boli / Strip' AS x UNION ALL SELECT 1, '20 Boluses in Plastic Container') t
-WHERE p.slug = 'breed-ezy-shop' AND s.section_key = 'presentation' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
+WHERE p.slug = 'breed-ezy' AND s.section_key = 'presentation' AND NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed')
 AND NOT EXISTS (SELECT 1 FROM product_section_items i WHERE i.section_id = s.id);
 
 INSERT INTO schema_migrations (name, applied_at) SELECT '2026-10-content-seed', 1761264000 FROM (SELECT 1 AS one) d WHERE NOT EXISTS (SELECT 1 FROM schema_migrations WHERE name = '2026-10-content-seed');

@@ -6,7 +6,26 @@ This package is deployed by the hosting/deployment team; the developer has no ac
 
 - **Innocell™ (Aquaculture):** product renamed from *Inocel* per the client. New packaging image `assets/Innocell.webp` (the old `assets/Inocel.webp` is no longer used). The product page is now `/products/aquaculture/innocell`; the old `/products/aquaculture/inocel` link still opens it and switches to the new URL.
 - **Google tags:** Google Tag Manager (`GTM-P8KDLRBZ`) and the Google Search Console `google-site-verification` meta tag are in the `<head>` of `index.html`. The site is a single page, so this one head covers every route; no change to `admin/`.
-- **SporoGEN-WS shop page:** the "Complete Gut Health Solution" heading above the description was removed from the code and the seed/migration SQL. On an **existing** database it is stored in the `products` table and must be cleared once (step 2b below).
+- **SporoGEN-WS shop page:** the "Complete Gut Health Solution" heading above the description was removed from the code and the seed/migration SQL. On an **existing** database it is cleared by `api/migration-2026-11.sql`.
+- **Enquiry form e-mail:** the Contact page form now sends every field (name, email, phone, country, profession, species, message, page, time) to the `notify_email` address via the new `api/enquiry.php`. The customer sees *Thank you* only when the mail was accepted by the server's mail system; otherwise an error is shown and the form keeps their text. Limited to 5 enquiries per hour per visitor.
+- **New-order e-mail:** every new order (Cash on Delivery or online) e-mails the order ID, items, quantities, prices, total, payment method and the customer's contact and delivery details to `notify_email`. Sent exactly once per order (a repeated submit of the same checkout sends nothing). If mail fails, the order is still saved and the failure is written to the PHP error log.
+- **Get Quote → WhatsApp:** now opens `https://wa.me/919944792794` with the product name, category, details and product link pre-filled.
+- **Favicon:** NewGen logo icon: `favicon.ico` (site root), `assets/favicon-16.png`, `assets/favicon-32.png`, `assets/apple-touch-icon.png`; linked from `index.html` and `admin/index.html`.
+- **Product URL changes with permanent (301) redirects** in `.htaccess`. Old links, bookmarks and Google results keep working:
+
+  | Old URL | New URL |
+  | --- | --- |
+  | `/shop/product/sporogen-poultry` | `/shop/product/sporogen` |
+  | `/shop/product/milkma-shop` | `/shop/product/milkma` |
+  | `/shop/product/breed-ezy-shop` | `/shop/product/breed-ezy` |
+  | `/products/poultry/ultra-zyme` | `/products/poultry/ultrazyme` |
+  | `/products/poultry/flora-zyme` | `/products/poultry/florazyme` |
+  | `/products/aquaculture/sporogen-aqua` | `/products/aquaculture/sporogen` |
+  | `/products/aquaculture/spark-2x-aqua` | `/products/aquaculture/spark-2x` |
+  | `/products/aquaculture/opti-ph-aqua` | `/products/aquaculture/opti-ph` |
+  | `/products/aquaculture/inocel` | `/products/aquaculture/innocell` |
+
+  The three Shop URLs are product slugs in the database, renamed by `api/migration-2026-11.sql`; existing orders keep their history. Customers' saved carts are converted automatically in the browser.
 
 ## What this release adds (2026-10)
 
@@ -21,11 +40,11 @@ This package is deployed by the hosting/deployment team; the developer has no ac
 | Part | Files |
 | --- | --- |
 | Customer site | `index.html` (Shop, checkout, order confirmation, **My Orders** tracking by Order ID) |
-| Public API | `api/products.php` (catalogue, categories, payment options), `api/create-order.php`, `api/track-order.php`, `api/razorpay-order.php` (Pay Now), `api/verify-payment.php`, `api/razorpay-webhook.php` |
+| Public API | `api/products.php` (catalogue, categories, payment options), `api/create-order.php` (also e-mails new orders), `api/enquiry.php` (Contact form e-mail), `api/track-order.php`, `api/razorpay-order.php` (Pay Now), `api/verify-payment.php`, `api/razorpay-webhook.php` |
 | Staff API (login required) | `api/admin-auth.php`, `api/admin-products.php`, `api/admin-categories.php`, `api/admin-orders.php` |
 | Admin panel | `admin/index.html` → `https://<site>/admin/` |
-| Shared code | `api/bootstrap.php` (DB, sessions, CSRF, rate limiting, audit log), `api/payment-lib.php` (Razorpay helpers; blocked from the web by `.htaccess`) |
-| Database | `api/schema.mysql.sql` (fresh install), `api/migration-2026-10.sql` (**existing** databases), `api/seed-products.sql` + `api/seed-product-content.sql` (fresh install data) |
+| Shared code | `api/bootstrap.php` (DB, sessions, CSRF, rate limiting, audit log), `api/payment-lib.php` (Razorpay helpers), `api/mail-lib.php` (notification e-mail); `*-lib.php` are blocked from the web by `.htaccess` |
+| Database | `api/schema.mysql.sql` (fresh install), `api/migration-2026-10.sql` + `api/migration-2026-11.sql` (**existing** databases), `api/seed-products.sql` + `api/seed-product-content.sql` (fresh install data) |
 | Uploads | `uploads/products/` (+ its `.htaccess`) – product images uploaded by staff |
 | CLI helper | `tools/create-admin.php` (create/reset a staff login) |
 
@@ -40,6 +59,14 @@ This package is deployed by the hosting/deployment team; the developer has no ac
 - `uploads/products/` writable by the PHP user.
 - A way to run SQL (phpMyAdmin/cPanel) and, ideally, SSH/CLI to run `tools/create-admin.php` (alternative below).
 - If the host sets `upload_max_filesize` / `post_max_size` below 5 MB, raise them (the app rejects images over 5 MB).
+- **Outgoing e-mail from PHP** (`mail()`; enabled by default on Hostinger). Notification mails are sent from `mail_from`, which must be an address **on the site's own domain** (SPF/DKIM), otherwise receiving servers may reject or spam them. Add to the server config (see `api/config.sample.php`):
+
+  ```php
+  'notify_email' => 'marketing@newgenbioscice.com',   // recipient for enquiries and new orders
+  'mail_from'    => 'no-reply@newgenbioscience.com',  // sender; must exist on / be allowed for the site's domain
+  ```
+
+  Without `notify_email` the enquiry form shows an error (it never pretends to have sent) and orders are saved without a notification mail.
 
 ## Upgrade an existing production site
 
@@ -51,14 +78,11 @@ The production database already has the earlier tables, so use the **migration**
    - Existing orders, customers, products, prices, pack sizes and images are not changed. Old orders show payment method **Not recorded**.
    - It seeds the four default categories and moves the existing product text (subtitle, description, detail sections) from the website into the database **once**, so it becomes editable in the admin panel. It also renames *SporoGEN Poultry* to **SporoGEN-WS** with the packaging subtitle. A marker row in `schema_migrations` stops it from ever overwriting admin edits on a re-run.
    - Verify: `SHOW TABLES;` now includes `categories`, `payments`, `product_sections`, `product_section_items`, `admin_audit_log`, `schema_migrations`; and `SELECT COUNT(*) FROM categories;` returns 4.
-   - **2b. Already upgraded in October?** Skip the import and run only this one statement (phpMyAdmin → SQL) to remove the old SporoGEN-WS heading:
-
-     ```sql
-     UPDATE products SET description_heading = NULL WHERE slug = 'sporogen-poultry';
-     ```
-
-     Alternatively, in the admin panel open SporoGEN-WS and clear the **Description heading** field.
-3. Upload `index.html`, `admin/`, the whole `api/` folder and `assets/Innocell.webp` (delete `assets/Inocel.webp` from the server). **Do not overwrite** your server config (`newgen-config.php` or `api/config.php`) or anything in `uploads/products/`.
+   - **Already upgraded in October?** Skip `migration-2026-10.sql`; go straight to 2b.
+   - **2b.** Then **Import** → `api/migration-2026-11.sql` (always). It renames the three Shop slugs (`sporogen-poultry` → `sporogen`, `milkma-shop` → `milkma`, `breed-ezy-shop` → `breed-ezy`) and clears the old SporoGEN-WS heading. Prices, pack sizes, content and images are unchanged; old orders keep their history. Safe to import twice.
+     - Verify: `SELECT slug, name FROM products ORDER BY sort_order;` lists `sporogen`, `milkma`, `breed-ezy` (and no `-poultry` / `-shop` slugs).
+   - **2c.** Add `notify_email` and `mail_from` to the server config (see *Requirements* above).
+3. Upload `index.html`, `.htaccess` (redirects), `favicon.ico`, `admin/`, the whole `api/` folder and the whole `assets/` folder (new: `Innocell.webp`, `favicon-16.png`, `favicon-32.png`, `apple-touch-icon.png`; delete `assets/Inocel.webp` from the server). **Do not overwrite** your server config (`newgen-config.php` or `api/config.php`) or anything in `uploads/products/`.
 4. Check the live site and admin panel with the smoke test below. Cash on Delivery works immediately; online payment stays disabled until the Razorpay keys are added (next section).
 5. Delete the `tools/` folder from the server if it is still there, and any `.sql` files containing password hashes.
 
@@ -188,3 +212,6 @@ Name → subtitle → description heading → description. Benefits / Features /
 5. With Razorpay **test** keys: place an online order, pay with a test card → *Paid* only afterwards; close the window instead → *Pending* with a working **Pay Now**.
 6. Admin → Products: edit subtitle/description/bullets and reload the product page; add a category and a product in it; delete a test product and confirm old orders still show it.
 7. Cancel a test order (confirmation required) and check the history; sign out; confirm `/api/admin-orders.php` returns 401 when opened directly.
+8. **E-mail:** send the Contact form → *Thank you* shown and the enquiry arrives at `notify_email` (check spam). The COD test order from step 2 also arrived there as **New order NG-…**, once.
+9. **URLs:** open each old URL in the table at the top → the address bar shows the new URL and the right product (in a terminal: `curl -I https://<site>/products/poultry/ultra-zyme` returns `301` with `Location: …/ultrazyme`). Click **Get Quote** on any product → WhatsApp opens for +91 99447 92794 with the product pre-filled.
+10. Browser tab shows the NewGen icon (hard-refresh; browsers cache favicons).
