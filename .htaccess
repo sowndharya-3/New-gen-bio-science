@@ -1,7 +1,10 @@
 # NEWGEN BIOSCIENCE — single-page app
 # All routes (/products/ruminant, /products/poultry/flavinta, ...) are handled
 # by the JS router in index.html, so any URL that is not a real file on disk
-# must be served index.html instead of an Apache 404.
+# must be served index.html instead of an Apache 404. index.php serves index.html
+# with the right SEO title + meta description for the URL already in the HTML.
+
+DirectoryIndex index.php index.html
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
@@ -20,11 +23,12 @@
     RewriteRule ^products/aquaculture/sporogen-aqua/?$ /products/aquaculture/sporogen [R=301,L]
     RewriteRule ^products/aquaculture/spark-2x-aqua/?$ /products/aquaculture/spark-2x [R=301,L]
     RewriteRule ^products/aquaculture/opti-ph-aqua/?$  /products/aquaculture/opti-ph  [R=301,L]
+    RewriteRule ^products/aquaculture/vimicell-aqua/?$ /products/aquaculture/vimicell [R=301,L]
     RewriteRule ^shop/product/sporogen-poultry/?$      /shop/product/sporogen         [R=301,L]
     RewriteRule ^shop/product/milkma-shop/?$           /shop/product/milkma           [R=301,L]
     RewriteRule ^shop/product/breed-ezy-shop/?$        /shop/product/breed-ezy        [R=301,L]
 
-    RewriteRule ^ index.html [L]
+    RewriteRule ^ index.php [L]
 </IfModule>
 
 # Correct MIME type for .webp on older server configs

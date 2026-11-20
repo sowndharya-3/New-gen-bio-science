@@ -9,6 +9,7 @@ This package is deployed by the hosting/deployment team; the developer has no ac
 - **SporoGEN-WS shop page:** the "Complete Gut Health Solution" heading above the description was removed from the code and the seed/migration SQL. On an **existing** database it is cleared by `api/migration-2026-11.sql`.
 - **Enquiry form e-mail:** the Contact page form now sends every field (name, email, phone, country, profession, species, message, page, time) to the `notify_email` address via the new `api/enquiry.php`. The customer sees *Thank you* only when the mail was accepted by the server's mail system; otherwise an error is shown and the form keeps their text. Limited to 5 enquiries per hour per visitor.
 - **New-order e-mail:** every new order (Cash on Delivery or online) e-mails the order ID, items, quantities, prices, total, payment method and the customer's contact and delivery details to `notify_email`. Sent exactly once per order (a repeated submit of the same checkout sends nothing). If mail fails, the order is still saved and the failure is written to the PHP error log.
+- **SEO titles and meta descriptions (42 pages):** every page in the client's sheet `newgen-meta-tags.xlsx` now has its own `<title>` and `<meta name="description">`, exactly as supplied. They are stored once, in the `<script id="seo-meta">` block near the top of `index.html`. The new `index.php` writes the right pair into the HTML for each URL, so Google sees it without running JavaScript. While a visitor browses, the page updates them itself. Pages not in the sheet (cart, checkout) use the Home pair. `.htaccess` now sends every page URL to `index.php` instead of `index.html`. **PHP must run for the site root**, which it already does for `api/`.
 - **Get Quote → WhatsApp:** now opens `https://wa.me/919944792794` with the product name, category, details and product link pre-filled.
 - **Favicon:** NewGen logo icon: `favicon.ico` (site root), `assets/favicon-16.png`, `assets/favicon-32.png`, `assets/apple-touch-icon.png`; linked from `index.html` and `admin/index.html`.
 - **Product URL changes with permanent (301) redirects** in `.htaccess`. Old links, bookmarks and Google results keep working:
@@ -24,6 +25,7 @@ This package is deployed by the hosting/deployment team; the developer has no ac
   | `/products/aquaculture/spark-2x-aqua` | `/products/aquaculture/spark-2x` |
   | `/products/aquaculture/opti-ph-aqua` | `/products/aquaculture/opti-ph` |
   | `/products/aquaculture/inocel` | `/products/aquaculture/innocell` |
+  | `/products/aquaculture/vimicell-aqua` | `/products/aquaculture/vimicell` |
 
   The three Shop URLs are product slugs in the database, renamed by `api/migration-2026-11.sql`; existing orders keep their history. Customers' saved carts are converted automatically in the browser.
 
@@ -82,7 +84,7 @@ The production database already has the earlier tables, so use the **migration**
    - **2b.** Then **Import** → `api/migration-2026-11.sql` (always). It renames the three Shop slugs (`sporogen-poultry` → `sporogen`, `milkma-shop` → `milkma`, `breed-ezy-shop` → `breed-ezy`) and clears the old SporoGEN-WS heading. Prices, pack sizes, content and images are unchanged; old orders keep their history. Safe to import twice.
      - Verify: `SELECT slug, name FROM products ORDER BY sort_order;` lists `sporogen`, `milkma`, `breed-ezy` (and no `-poultry` / `-shop` slugs).
    - **2c.** Add `notify_email` and `mail_from` to the server config (see *Requirements* above).
-3. Upload `index.html`, `.htaccess` (redirects), `favicon.ico`, `admin/`, the whole `api/` folder and the whole `assets/` folder (new: `Innocell.webp`, `favicon-16.png`, `favicon-32.png`, `apple-touch-icon.png`; delete `assets/Inocel.webp` from the server). **Do not overwrite** your server config (`newgen-config.php` or `api/config.php`) or anything in `uploads/products/`.
+3. Upload `index.html`, **`index.php` (new)**, `.htaccess` (redirects), `favicon.ico`, `admin/`, the whole `api/` folder and the whole `assets/` folder (new: `Innocell.webp`, `favicon-16.png`, `favicon-32.png`, `apple-touch-icon.png`; delete `assets/Inocel.webp` from the server). **Do not overwrite** your server config (`newgen-config.php` or `api/config.php`) or anything in `uploads/products/`.
 4. Check the live site and admin panel with the smoke test below. Cash on Delivery works immediately; online payment stays disabled until the Razorpay keys are added (next section).
 5. Delete the `tools/` folder from the server if it is still there, and any `.sql` files containing password hashes.
 
@@ -110,7 +112,7 @@ Razorpay keys live **only** in the server config file – never in `index.html`,
 2. Create the config from `api/config.sample.php` with the real DB credentials:
    - Preferred: save as `newgen-config.php` **one level above the web root**.
    - Otherwise `api/config.php` (the `.htaccess` blocks it; verify `https://<site>/api/config.php` returns 403).
-3. Upload `index.html`, `.htaccess`, `assets/`, `api/`, `admin/`, `uploads/`, `tools/`.
+3. Upload `index.html`, `index.php`, `.htaccess`, `assets/`, `api/`, `admin/`, `uploads/`, `tools/`.
    - **On every later deployment do NOT overwrite or delete `uploads/products/*.(jpg|png|webp)`** – those are the staff-uploaded images and the database points to them. Deploy code files only.
 4. Create the first staff login (next section), then run the smoke test.
 
@@ -215,3 +217,4 @@ Name → subtitle → description heading → description. Benefits / Features /
 8. **E-mail:** send the Contact form → *Thank you* shown and the enquiry arrives at `notify_email` (check spam). The COD test order from step 2 also arrived there as **New order NG-…**, once.
 9. **URLs:** open each old URL in the table at the top → the address bar shows the new URL and the right product (in a terminal: `curl -I https://<site>/products/poultry/ultra-zyme` returns `301` with `Location: …/ultrazyme`). Click **Get Quote** on any product → WhatsApp opens for +91 99447 92794 with the product pre-filled.
 10. Browser tab shows the NewGen icon (hard-refresh; browsers cache favicons).
+11. **SEO:** open `/about`, `/products/poultry/ultrazyme` and `/shop/product/milkma` and use **View page source** (Ctrl+U). Each has its own `<title>` and `<meta name="description">` from the client sheet, once each. In a terminal, `curl -s https://<site>/about | grep -E "<title>|name=.description"` shows the About pair. If every page shows the Home pair, PHP is not running `index.php`: check that `index.php` was uploaded and that `.htaccess` is the new one.
